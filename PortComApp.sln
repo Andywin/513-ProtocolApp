@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConvertProvider", "ComProtocol\ConvertProvider.csproj", "{8838F7D5-E44B-4CA2-B80F-FCEB52DF5357}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunicationApp", "CommunicationApp\CommunicationApp.csproj", "{D823E83F-8510-4FFF-A066-9D69C2CD1C8B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebComTest", "WebComTest\WebComTest.csproj", "{0C1DDC91-7C5D-4CDA-8958-63B73CECF0C0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,6 +23,10 @@ Global
 		{D823E83F-8510-4FFF-A066-9D69C2CD1C8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D823E83F-8510-4FFF-A066-9D69C2CD1C8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D823E83F-8510-4FFF-A066-9D69C2CD1C8B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C1DDC91-7C5D-4CDA-8958-63B73CECF0C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C1DDC91-7C5D-4CDA-8958-63B73CECF0C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C1DDC91-7C5D-4CDA-8958-63B73CECF0C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C1DDC91-7C5D-4CDA-8958-63B73CECF0C0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
