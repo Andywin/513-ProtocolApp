@@ -10,6 +10,9 @@ using System.Windows.Forms;
 using System.IO.Ports;
 using ConvertProvider;
 using System.Text.RegularExpressions;
+using System.Net.Sockets;
+using System.Net;
+using System.Threading;
 
 namespace CommunicationApp
 {
@@ -19,9 +22,16 @@ namespace CommunicationApp
         private StringBuilder myStringBuilder = new StringBuilder();//避免在事件处理方法中反复的创建，定义到外面。
         private long received_count = 0;//接收计数
         private long send_count = 0;//发送计数
-        private bool Listening = false;//是否没有执行完invoke相关操作  
-        private bool ClosingPort = false;//是否正在关闭串口，执行Application.DoEvents，并阻止再次invoke  
-        
+        private bool listening = false;//是否没有执行完invoke相关操作  
+        private bool closingPort = false;//是否正在关闭串口，执行Application.DoEvents，并阻止再次invoke  
+        private bool isByNet = false;//是否是开启了网络发送或接收
+        //声明发送用UdpClient
+        private UdpClient udpClientSend;
+        //声明接受用UdpClient
+        private UdpClient udpClientRcv;
+        //声明监听网络端口的线程
+        Thread threadNet;
+
         public CommunicationForm()
         {
             InitializeComponent();
@@ -34,7 +44,7 @@ namespace CommunicationApp
         /// <param name="e"></param>
         private void PortComForm_Load(object sender, EventArgs e)
         {
-            this.Text = "串口通信程序";
+            this.Text = "通信程序";
 
             //初始化下拉串口名称列表框
             string[] ports = SerialPort.GetPortNames();
@@ -43,35 +53,38 @@ namespace CommunicationApp
             comboPortName.SelectedIndex = comboPortName.Items.Count > 0 ? 0 : -1;
             comboBaudrate.SelectedIndex = comboBaudrate.Items.IndexOf("4800");
             //初始关闭发送按钮，防止误触发
-            buttonSendByRawData.Enabled = false;
-            buttonSendByProtocol.Enabled = false;
-            
+            //buttonSendByRawData.Enabled = false;
+            //buttonSendByProtocol.Enabled = false;
+            //初始化网络通信textBox默认值
+            textBoxIpAddress.Text = "127.0.0.1";
+            textBoxPortNum.Text = "127";
+
             //初始化SerialPort对象
             comm.NewLine = "\r\n"; //表示行尾的值。 默认值为换行符 (NewLine)
             comm.RtsEnable = true;//根据实际情况，如果为 true，则启用请求发送 (RTS)
 
             //添加事件注册
-            comm.DataReceived += comm_DataReceived;
+            comm.DataReceived += SerialDataReceived;
 
             dgvReceiveData.Columns["ProtocolDataLengthRcv"].DefaultCellStyle.BackColor = Color.LightGray;
             dgvSendData.Columns["ProtocolDataLength"].DefaultCellStyle.BackColor = Color.LightGray;
         }
 
         /// <summary>
-        ///  添加接收数据处理程序
+        ///  添加串口接收数据处理程序
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void comm_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        private void SerialDataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             //如果正在关闭，忽略操作，直接返回，尽快的完成串口监听线程的一次循环
-            if (ClosingPort)
+            if (closingPort)
             {
                 return;
             }
             try
             {
-                Listening = true;//设置标记，说明已经开始处理数据，一会儿要使用系统UI
+                listening = true;//设置标记，说明已经开始处理数据，一会儿要使用系统UI
                 int n = comm.BytesToRead;//先记录下来，避免某种原因，人为的原因，操作几次之间时间长，缓存不一致
                 byte[] buf = new byte[n];//声明一个临时数组存储当前来的串口数据
                 received_count += n;//增加接收计数
@@ -104,7 +117,7 @@ namespace CommunicationApp
             //}
             finally
             {
-                Listening = false;//串口接收完了，ui可以关闭串口了
+                listening = false;//串口接收完了，ui可以关闭串口了
             }
         }
 
@@ -118,14 +131,14 @@ namespace CommunicationApp
             //根据当前串口对象，来判断操作
             if (comm.IsOpen)
             {
-                ClosingPort = true;
-                while (Listening)
+                closingPort = true;
+                while (listening)
                 {
                     Application.DoEvents();
                 }
                 //打开时点击，则关闭串口
                 comm.Close();
-                ClosingPort = false;
+                closingPort = false;
             }
 
             else
@@ -147,8 +160,9 @@ namespace CommunicationApp
             }
             //设置按钮的状态
             buttonOpenClose.Text = comm.IsOpen ? "关闭串口" : "打开串口";
-            buttonSendByRawData.Enabled = comm.IsOpen;
-            buttonSendByProtocol.Enabled = comm.IsOpen;
+            //buttonSendByRawData.Enabled = comm.IsOpen;
+            //buttonSendByProtocol.Enabled = comm.IsOpen;
+            buttonByNet.Enabled = !comm.IsOpen;//串口打开则disable网络收发
         }
 
         /// <summary>
@@ -169,12 +183,19 @@ namespace CommunicationApp
             {
                 buf.Add(byte.Parse(m.Value, System.Globalization.NumberStyles.HexNumber));
             }
-            //转换列表为数组后发送
-            comm.Write(buf.ToArray(), 0, buf.Count);
-            //记录发送的字节数
-            sendCount = buf.Count;
-            send_count += sendCount;//累加发送字节数
-            toolStripStatusDataSent.Text = "已发送字节数：" + send_count.ToString();//更新界面
+            if (isByNet)//通过网络发送
+            {
+                this.SendByNet(buf);
+            }
+            else //通过串口发送
+            {
+                //转换列表为数组后发送
+                comm.Write(buf.ToArray(), 0, buf.Count);
+            }
+                //记录发送的字节数
+                sendCount = buf.Count;
+                send_count += sendCount;//累加发送字节数
+                toolStripStatusDataSent.Text = "已发送字节数：" + send_count.ToString();//更新界面
         }
 
         /// <summary>
@@ -279,14 +300,14 @@ namespace CommunicationApp
             //根据当前串口对象，来判断操作
             if (comm.IsOpen)
             {
-                ClosingPort = true;
-                while (Listening)
+                closingPort = true;
+                while (listening)
                 {
                     Application.DoEvents();
                 }
                 //打开时点击，则关闭串口
                 comm.Close();
-                ClosingPort = false;
+                closingPort = false;
             }
         }
         
@@ -382,5 +403,57 @@ namespace CommunicationApp
         {
             dgvSendData.Rows.Clear();
         }
+
+        /// <summary>
+        /// 点击开启网络发送按钮
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void buttonByNet_Click(object sender, EventArgs e)
+        {
+            if (!isByNet)
+            {
+                isByNet = true;
+                buttonByNet.Text = "关闭网络收发";
+                buttonOpenClose.Enabled = false;
+                //开一线程,监听网络端口
+                threadNet = new Thread(new ThreadStart(ListenNet));
+                //设置为后台
+                threadNet.IsBackground = true;
+                threadNet.Start();
+            }
+            else
+            {
+                isByNet = false;
+                buttonByNet.Text = "开启网络收发";
+                buttonOpenClose.Enabled = true;
+                threadNet.Abort();
+            }
+        }
+
+        private void ListenNet()
+        {
+            //throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// 通过网络发送
+        /// </summary>
+        /// <param name="buf"></param>
+        private void SendByNet(List<byte> buf)
+        {
+            //初始化udpClient协议
+            udpClientSend = new UdpClient();
+            //向指定IP地址发送数据
+            IPAddress addressTosend;
+            int portNum;
+            if (IPAddress.TryParse(textBoxIpAddress.Text, out addressTosend) && Int32.TryParse(textBoxPortNum.Text,out portNum))
+            {
+                //端口
+                udpClientSend.Connect(addressTosend, portNum);
+                udpClientSend.Send(buf.ToArray(), buf.Count);
+            }
+        }
+
    }
 }

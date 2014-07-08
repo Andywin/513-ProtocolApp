@@ -69,6 +69,14 @@
             this.buttonChoosePtcReceive = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.label5 = new System.Windows.Forms.Label();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.buttonByNet = new System.Windows.Forms.Button();
+            this.textBoxPortNum = new System.Windows.Forms.TextBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.textBoxIpAddress = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.radioButtonTCP = new System.Windows.Forms.RadioButton();
+            this.radioButtonUdp = new System.Windows.Forms.RadioButton();
             this.groupBox1.SuspendLayout();
             this.groupBox4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvSendData)).BeginInit();
@@ -78,12 +86,13 @@
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvReceiveData)).BeginInit();
             this.tabPage2.SuspendLayout();
+            this.groupBox3.SuspendLayout();
             this.SuspendLayout();
             // 
             // comboPortName
             // 
             this.comboPortName.FormattingEnabled = true;
-            this.comboPortName.Location = new System.Drawing.Point(58, 21);
+            this.comboPortName.Location = new System.Drawing.Point(72, 21);
             this.comboPortName.Name = "comboPortName";
             this.comboPortName.Size = new System.Drawing.Size(121, 20);
             this.comboPortName.TabIndex = 0;
@@ -102,7 +111,7 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label2.Location = new System.Drawing.Point(206, 25);
+            this.label2.Location = new System.Drawing.Point(11, 57);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(53, 12);
             this.label2.TabIndex = 3;
@@ -122,7 +131,7 @@
             "38400",
             "57600",
             "115200"});
-            this.comboBaudrate.Location = new System.Drawing.Point(265, 21);
+            this.comboBaudrate.Location = new System.Drawing.Point(72, 54);
             this.comboBaudrate.Name = "comboBaudrate";
             this.comboBaudrate.Size = new System.Drawing.Size(121, 20);
             this.comboBaudrate.TabIndex = 2;
@@ -132,17 +141,18 @@
             this.groupBox1.Controls.Add(this.comboPortName);
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.comboBaudrate);
+            this.groupBox1.Controls.Add(this.buttonOpenClose);
             this.groupBox1.Controls.Add(this.label2);
-            this.groupBox1.Location = new System.Drawing.Point(12, 2);
+            this.groupBox1.Location = new System.Drawing.Point(622, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(404, 53);
+            this.groupBox1.Size = new System.Drawing.Size(212, 123);
             this.groupBox1.TabIndex = 4;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "串口设置";
+            this.groupBox1.Text = "串口通信";
             // 
             // buttonOpenClose
             // 
-            this.buttonOpenClose.Location = new System.Drawing.Point(430, 21);
+            this.buttonOpenClose.Location = new System.Drawing.Point(118, 91);
             this.buttonOpenClose.Name = "buttonOpenClose";
             this.buttonOpenClose.Size = new System.Drawing.Size(75, 23);
             this.buttonOpenClose.TabIndex = 5;
@@ -152,7 +162,7 @@
             // 
             // buttonReset
             // 
-            this.buttonReset.Location = new System.Drawing.Point(519, 21);
+            this.buttonReset.Location = new System.Drawing.Point(740, 352);
             this.buttonReset.Name = "buttonReset";
             this.buttonReset.Size = new System.Drawing.Size(75, 23);
             this.buttonReset.TabIndex = 6;
@@ -172,11 +182,11 @@
             // txGet
             // 
             this.txGet.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.txGet.Location = new System.Drawing.Point(3, 280);
+            this.txGet.Location = new System.Drawing.Point(9, 281);
             this.txGet.Multiline = true;
             this.txGet.Name = "txGet";
             this.txGet.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.txGet.Size = new System.Drawing.Size(579, 48);
+            this.txGet.Size = new System.Drawing.Size(579, 50);
             this.txGet.TabIndex = 0;
             // 
             // buttonSendByRawData
@@ -322,9 +332,9 @@
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusDataSent,
             this.toolStripStatusDataRcv});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 432);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 386);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(617, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(842, 22);
             this.statusStrip1.TabIndex = 10;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -344,10 +354,10 @@
             // 
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
-            this.tabControl1.Location = new System.Drawing.Point(12, 61);
+            this.tabControl1.Location = new System.Drawing.Point(12, 12);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(593, 360);
+            this.tabControl1.Size = new System.Drawing.Size(604, 363);
             this.tabControl1.TabIndex = 11;
             // 
             // tabPage1
@@ -359,7 +369,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(585, 334);
+            this.tabPage1.Size = new System.Drawing.Size(596, 337);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "接收数据";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -367,7 +377,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(9, 265);
+            this.label4.Location = new System.Drawing.Point(6, 266);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(65, 12);
             this.label4.TabIndex = 14;
@@ -380,14 +390,14 @@
             this.groupBox2.Controls.Add(this.buttonChoosePtcReceive);
             this.groupBox2.Location = new System.Drawing.Point(3, 6);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(579, 253);
+            this.groupBox2.Size = new System.Drawing.Size(585, 254);
             this.groupBox2.TabIndex = 13;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "按协议解析";
             // 
             // buttonClearReceive
             // 
-            this.buttonClearReceive.Location = new System.Drawing.Point(417, 224);
+            this.buttonClearReceive.Location = new System.Drawing.Point(419, 225);
             this.buttonClearReceive.Name = "buttonClearReceive";
             this.buttonClearReceive.Size = new System.Drawing.Size(75, 23);
             this.buttonClearReceive.TabIndex = 13;
@@ -410,7 +420,7 @@
             this.dgvReceiveData.Name = "dgvReceiveData";
             this.dgvReceiveData.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
             this.dgvReceiveData.RowTemplate.Height = 23;
-            this.dgvReceiveData.Size = new System.Drawing.Size(567, 204);
+            this.dgvReceiveData.Size = new System.Drawing.Size(569, 205);
             this.dgvReceiveData.TabIndex = 12;
             // 
             // ProtocolNameRcv
@@ -482,7 +492,7 @@
             // 
             // buttonChoosePtcReceive
             // 
-            this.buttonChoosePtcReceive.Location = new System.Drawing.Point(498, 224);
+            this.buttonChoosePtcReceive.Location = new System.Drawing.Point(500, 225);
             this.buttonChoosePtcReceive.Name = "buttonChoosePtcReceive";
             this.buttonChoosePtcReceive.Size = new System.Drawing.Size(75, 23);
             this.buttonChoosePtcReceive.TabIndex = 11;
@@ -499,7 +509,7 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(585, 334);
+            this.tabPage2.Size = new System.Drawing.Size(596, 337);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "发送数据";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -513,20 +523,98 @@
             this.label5.TabIndex = 11;
             this.label5.Text = "原始数据：";
             // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.buttonByNet);
+            this.groupBox3.Controls.Add(this.textBoxPortNum);
+            this.groupBox3.Controls.Add(this.label7);
+            this.groupBox3.Controls.Add(this.textBoxIpAddress);
+            this.groupBox3.Controls.Add(this.label6);
+            this.groupBox3.Controls.Add(this.radioButtonTCP);
+            this.groupBox3.Controls.Add(this.radioButtonUdp);
+            this.groupBox3.Location = new System.Drawing.Point(623, 175);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(211, 160);
+            this.groupBox3.TabIndex = 12;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "网络通信";
+            // 
+            // buttonByNet
+            // 
+            this.buttonByNet.Location = new System.Drawing.Point(83, 127);
+            this.buttonByNet.Name = "buttonByNet";
+            this.buttonByNet.Size = new System.Drawing.Size(109, 23);
+            this.buttonByNet.TabIndex = 6;
+            this.buttonByNet.Text = "开启网络收发";
+            this.buttonByNet.UseVisualStyleBackColor = true;
+            this.buttonByNet.Click += new System.EventHandler(this.buttonByNet_Click);
+            // 
+            // textBoxPortNum
+            // 
+            this.textBoxPortNum.Location = new System.Drawing.Point(59, 88);
+            this.textBoxPortNum.Name = "textBoxPortNum";
+            this.textBoxPortNum.Size = new System.Drawing.Size(62, 21);
+            this.textBoxPortNum.TabIndex = 5;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(12, 91);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(41, 12);
+            this.label7.TabIndex = 4;
+            this.label7.Text = "端口号";
+            // 
+            // textBoxIpAddress
+            // 
+            this.textBoxIpAddress.Location = new System.Drawing.Point(59, 51);
+            this.textBoxIpAddress.Name = "textBoxIpAddress";
+            this.textBoxIpAddress.Size = new System.Drawing.Size(133, 21);
+            this.textBoxIpAddress.TabIndex = 3;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(12, 54);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(41, 12);
+            this.label6.TabIndex = 2;
+            this.label6.Text = "IP地址";
+            // 
+            // radioButtonTCP
+            // 
+            this.radioButtonTCP.AutoSize = true;
+            this.radioButtonTCP.Location = new System.Drawing.Point(109, 20);
+            this.radioButtonTCP.Name = "radioButtonTCP";
+            this.radioButtonTCP.Size = new System.Drawing.Size(83, 16);
+            this.radioButtonTCP.TabIndex = 1;
+            this.radioButtonTCP.Text = "TCP/IP协议";
+            this.radioButtonTCP.UseVisualStyleBackColor = true;
+            // 
+            // radioButtonUdp
+            // 
+            this.radioButtonUdp.AutoSize = true;
+            this.radioButtonUdp.Checked = true;
+            this.radioButtonUdp.Location = new System.Drawing.Point(12, 20);
+            this.radioButtonUdp.Name = "radioButtonUdp";
+            this.radioButtonUdp.Size = new System.Drawing.Size(65, 16);
+            this.radioButtonUdp.TabIndex = 0;
+            this.radioButtonUdp.TabStop = true;
+            this.radioButtonUdp.Text = "UDP协议";
+            this.radioButtonUdp.UseVisualStyleBackColor = true;
+            // 
             // CommunicationForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(617, 454);
+            this.ClientSize = new System.Drawing.Size(842, 408);
+            this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.buttonReset);
-            this.Controls.Add(this.buttonOpenClose);
             this.Controls.Add(this.groupBox1);
             this.MaximizeBox = false;
-            this.MaximumSize = new System.Drawing.Size(633, 493);
-            this.MinimumSize = new System.Drawing.Size(633, 493);
             this.Name = "CommunicationForm";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.PortComForm_FormClosing);
             this.Load += new System.EventHandler(this.PortComForm_Load);
@@ -543,6 +631,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgvReceiveData)).EndInit();
             this.tabPage2.ResumeLayout(false);
             this.tabPage2.PerformLayout();
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -591,6 +681,14 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn DataContentRcv;
         private System.Windows.Forms.DataGridViewTextBoxColumn RawDataRcv;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusDataRcv;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.TextBox textBoxPortNum;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.TextBox textBoxIpAddress;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.RadioButton radioButtonTCP;
+        private System.Windows.Forms.RadioButton radioButtonUdp;
+        private System.Windows.Forms.Button buttonByNet;
     }
 }
 
