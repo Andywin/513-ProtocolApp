@@ -47,7 +47,7 @@ namespace ConvertProvider
             //StringBuilder myString = new StringBuilder();
             string myString = "";
             // 将指定位置开始的指定字节数目的数据转换为字符串（使用ASCII编码）
-            myString = Encoding.ASCII.GetString(DataContent.ToArray(), DataPosition, DataLength);
+            myString = Encoding.ASCII.GetString(DataContent, DataPosition, DataLength);
             // 将指定位置开始的指定字节数目的数据转换为字符串（直接输出16进制字符，带连字符“-”）   
             // myString = BitConverter.ToString(DataContent.ToArray(), DataPosition, DataLength);
             GetData = myString;
