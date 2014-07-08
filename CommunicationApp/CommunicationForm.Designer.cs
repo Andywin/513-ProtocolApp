@@ -152,11 +152,11 @@
             // 
             // buttonOpenClose
             // 
-            this.buttonOpenClose.Location = new System.Drawing.Point(118, 91);
+            this.buttonOpenClose.Location = new System.Drawing.Point(84, 91);
             this.buttonOpenClose.Name = "buttonOpenClose";
-            this.buttonOpenClose.Size = new System.Drawing.Size(75, 23);
+            this.buttonOpenClose.Size = new System.Drawing.Size(109, 23);
             this.buttonOpenClose.TabIndex = 5;
-            this.buttonOpenClose.Text = "打开串口";
+            this.buttonOpenClose.Text = "开启串口收发";
             this.buttonOpenClose.UseVisualStyleBackColor = true;
             this.buttonOpenClose.Click += new System.EventHandler(this.buttonOpenClose_Click);
             // 

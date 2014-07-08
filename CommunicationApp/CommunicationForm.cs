@@ -1,18 +1,15 @@
-﻿using System;
+﻿using ConvertProvider;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.IO.Ports;
-using ConvertProvider;
-using System.Text.RegularExpressions;
-using System.Net.Sockets;
+using System.Linq;
 using System.Net;
+using System.Net.Sockets;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace CommunicationApp
 {
@@ -23,8 +20,8 @@ namespace CommunicationApp
     {
         private SerialPort comm = new SerialPort();
         private StringBuilder myStringBuilder = new StringBuilder();//避免在事件处理方法中反复的创建，定义到外面。
-        private long received_count = 0;//接收计数
-        private long send_count = 0;//发送计数
+        private long receivedCount = 0;//接收计数
+        private long sentCount = 0;//发送计数
         private bool listening = false;//是否没有执行完invoke相关操作  
         private bool closingPort = false;//是否正在关闭串口，执行Application.DoEvents，并阻止再次invoke  
         private bool isByNet = false;//是否是开启了网络发送或接收
@@ -51,15 +48,13 @@ namespace CommunicationApp
         {
             this.Text = "通信程序";
 
-            //初始化下拉串口名称列表框
+            //初始化下拉串口名称列表框和波特率默认选项
             string[] ports = SerialPort.GetPortNames();
             Array.Sort(ports);
             comboPortName.Items.AddRange(ports);
             comboPortName.SelectedIndex = comboPortName.Items.Count > 0 ? 0 : -1;
             comboBaudrate.SelectedIndex = comboBaudrate.Items.IndexOf("4800");
-            //初始关闭发送按钮，防止误触发
-            //buttonSendByRawData.Enabled = false;
-            //buttonSendByProtocol.Enabled = false;
+
             //初始化网络通信textBox默认值
             textBoxIpAddress.Text = "127.0.0.1";
             textBoxPortNum.Text = "127";
@@ -72,6 +67,7 @@ namespace CommunicationApp
             comm.DataReceived += SerialDataReceived;
             invokeDataRcv += ReceiveDataMethod;
 
+            //设置数据长度列颜色为灰色
             dgvReceiveData.Columns["ProtocolDataLengthRcv"].DefaultCellStyle.BackColor = Color.LightGray;
             dgvSendData.Columns["ProtocolDataLength"].DefaultCellStyle.BackColor = Color.LightGray;
         }
@@ -94,33 +90,12 @@ namespace CommunicationApp
                 int n = comm.BytesToRead;//先记录下来，避免某种原因，人为的原因，操作几次之间时间长，缓存不一致
                 byte[] buf = new byte[n];//声明一个临时数组存储当前来的串口数据
                 comm.Read(buf, 0, n);//读取缓冲数据
-        //        buffer.AddRange(buf);
 
-                //调用数据处理的委托，对读取的数据进行分析并显示
-                invokeDataRcv(buf);//此代码执行了以下代码段的内容
-                ////对读取的数据进行分析
-                //this.AnalyseProtocolFromSerial(buf);
-                ////清除字符串构造器的内容
-                //myStringBuilder.Clear();
-                ////因为要访问ui资源，所以需要使用invoke方式同步ui。
-                //this.Invoke((EventHandler)(delegate
-                //{
-                //    //依次的拼接出16进制字符串
-                //    foreach (byte b in buf)
-                //    {
-                //        myStringBuilder.Append(b.ToString("X2") + " ");
-                //    }
-                //    //追加的形式添加到文本框末端，并滚动到最后。
-                //    this.txGet.AppendText(myStringBuilder.ToString());
-                //    this.txGet.AppendText("\n");
-                //    //修改接收计数
-                //    toolStripStatusDataRcv.Text = "已接收字节数：" + received_count.ToString();//更新界面
-                //}));
-
+                //调用数据处理的事件委托，对读取的数据进行分析并显示
+                invokeDataRcv(buf);
             }
             //catch (Exception ex)
             //{
-
             //    throw new Exception("串口接收数据异常", ex);
             //}
             finally
@@ -167,9 +142,7 @@ namespace CommunicationApp
                 }
             }
             //设置按钮的状态
-            buttonOpenClose.Text = comm.IsOpen ? "关闭串口" : "打开串口";
-            //buttonSendByRawData.Enabled = comm.IsOpen;
-            //buttonSendByProtocol.Enabled = comm.IsOpen;
+            buttonOpenClose.Text = comm.IsOpen ? "关闭串口收发" : "开启串口收发";
             buttonByNet.Enabled = !comm.IsOpen;//串口打开则disable网络收发
         }
 
@@ -206,8 +179,8 @@ namespace CommunicationApp
             }
             //记录发送的字节数
                 sendCount = buf.Count;
-                send_count += sendCount;//累加发送字节数
-                toolStripStatusDataSent.Text = "已发送字节数：" + send_count.ToString();//更新界面
+                sentCount += sendCount;//累加发送字节数
+                toolStripStatusDataSent.Text = "已发送字节数：" + sentCount.ToString();//更新界面
         }
 
         /// <summary>
@@ -275,11 +248,12 @@ namespace CommunicationApp
                 }
                 if (comm.IsOpen)
                 {
-                    //向串口写数据
+                    //通过串口发送
                     comm.Write(buf.ToArray(), 0, buf.Count());
                 }
                 else if (isByNet)
                 {
+                    //通过网口发送
                     this.SendByNet(buf);
                 }
                 else //网口串口都未打开，则什么都不做
@@ -288,8 +262,8 @@ namespace CommunicationApp
                 }
                 //记录发送的字节数
                 sendCount = buf.Count;
-                send_count += sendCount;//累加发送字节数
-                toolStripStatusDataSent.Text = "已发送字节数：" + send_count.ToString();//更新界面
+                sentCount += sendCount;//累加发送字节数
+                toolStripStatusDataSent.Text = "已发送字节数：" + sentCount.ToString();//更新界面
 
             }
             catch (Exception innerException)
@@ -306,7 +280,7 @@ namespace CommunicationApp
         private void buttonReset_Click(object sender, EventArgs e)
         {
             //复位接受和发送的字节数计数器并更新界面。
-            send_count = received_count = 0;
+            sentCount = receivedCount = 0;
             toolStripStatusDataSent.Text = "已发送字节数：0";
             toolStripStatusDataRcv.Text = "已接收字节数：0";
             txGet.Text = "";
@@ -427,6 +401,7 @@ namespace CommunicationApp
             dgvSendData.Rows.Clear();
         }
 
+        #region 网络收发数据的代码
         /// <summary>
         /// 点击开启网络发送按钮
         /// </summary>
@@ -458,20 +433,23 @@ namespace CommunicationApp
             }
         }
 
+        /// <summary>
+        /// 监听端口发来的信息
+        /// </summary>
         private void ListenNet()
         {
             //声明终结点和端口号
             IPEndPoint iep = null;
             int portNum;
-            if (Int32.TryParse(textBoxPortNum.Text,out portNum))
+            if (Int32.TryParse(textBoxPortNum.Text, out portNum))
             {
                 //初始化接收用UdpClient
                 udpClientRcv = new UdpClient(portNum);
                 while (true)
                 {
                     //获得网络发送过来的数据包
-                    byte[] buf =  udpClientRcv.Receive(ref iep);
-                    //调用委托，对发过来的数据包进行处理
+                    byte[] buf = udpClientRcv.Receive(ref iep);
+                    //调用数据处理的事件委托，对读取的数据进行分析并显示
                     invokeDataRcv(buf);
                 }
             }
@@ -489,13 +467,15 @@ namespace CommunicationApp
             IPAddress addressTosend;
             int portNum;
             //向指定IP地址发送数据
-            if (IPAddress.TryParse(textBoxIpAddress.Text, out addressTosend) && Int32.TryParse(textBoxPortNum.Text,out portNum))
+            if (IPAddress.TryParse(textBoxIpAddress.Text, out addressTosend) && Int32.TryParse(textBoxPortNum.Text, out portNum))
             {
                 //端口
                 udpClientSend.Connect(addressTosend, portNum);
                 udpClientSend.Send(buf.ToArray(), buf.Count);
+                udpClientSend.Close();
             }
-        }
+        } 
+        #endregion
 
         /// <summary>
         /// 接收数据并进行处理的方法
@@ -503,7 +483,7 @@ namespace CommunicationApp
         /// <param name="buf"></param>
         private void ReceiveDataMethod(byte[] buf)
         {
-            received_count += buf.Length;//增加接收计数
+            receivedCount += buf.Length;//增加接收计数
             //对读取的数据进行分析
             this.AnalyseProtocolFromSerial(buf);
             //清除字符串构造器的内容
@@ -520,7 +500,7 @@ namespace CommunicationApp
                 this.txGet.AppendText(myStringBuilder.ToString());
                 this.txGet.AppendText("\n");
                 //修改接收计数
-                toolStripStatusDataRcv.Text = "已接收字节数：" + received_count.ToString();//更新界面
+                toolStripStatusDataRcv.Text = "已接收字节数：" + receivedCount.ToString();//更新界面
             }));
         }
 
