@@ -16,6 +16,9 @@ using System.Threading;
 
 namespace CommunicationApp
 {
+    //定义一个byte[]参数的委托，用来调用接收数据、数据分析以及显示的方法
+    public delegate void InvokeDataRcvDelegate(byte[] buf);
+    
     public partial class CommunicationForm : Form
     {
         private SerialPort comm = new SerialPort();
@@ -31,6 +34,8 @@ namespace CommunicationApp
         private UdpClient udpClientRcv;
         //声明监听网络端口的线程
         Thread threadNet;
+        //定义InvokeDataRcvDelegate委托的事件
+        public event InvokeDataRcvDelegate invokeDataRcv;
 
         public CommunicationForm()
         {
@@ -65,6 +70,7 @@ namespace CommunicationApp
 
             //添加事件注册
             comm.DataReceived += SerialDataReceived;
+            invokeDataRcv += ReceiveDataMethod;
 
             dgvReceiveData.Columns["ProtocolDataLengthRcv"].DefaultCellStyle.BackColor = Color.LightGray;
             dgvSendData.Columns["ProtocolDataLength"].DefaultCellStyle.BackColor = Color.LightGray;
@@ -87,27 +93,29 @@ namespace CommunicationApp
                 listening = true;//设置标记，说明已经开始处理数据，一会儿要使用系统UI
                 int n = comm.BytesToRead;//先记录下来，避免某种原因，人为的原因，操作几次之间时间长，缓存不一致
                 byte[] buf = new byte[n];//声明一个临时数组存储当前来的串口数据
-                received_count += n;//增加接收计数
                 comm.Read(buf, 0, n);//读取缓冲数据
         //        buffer.AddRange(buf);
-                //对读取的数据进行分析
-                this.AnalyseProtocolFromSerial(buf);
-                //清除字符串构造器的内容
-                myStringBuilder.Clear();
-                //因为要访问ui资源，所以需要使用invoke方式同步ui。
-                this.Invoke((EventHandler)(delegate
-                {
-                    //依次的拼接出16进制字符串
-                    foreach (byte b in buf)
-                    {
-                        myStringBuilder.Append(b.ToString("X2") + " ");
-                    }
-                    //追加的形式添加到文本框末端，并滚动到最后。
-                    this.txGet.AppendText(myStringBuilder.ToString());
-                    this.txGet.AppendText("\n");
-                    //修改接收计数
-                    toolStripStatusDataRcv.Text = "已接收字节数：" + received_count.ToString();//更新界面
-                }));
+
+                //调用数据处理的委托，对读取的数据进行分析并显示
+                invokeDataRcv(buf);//此代码执行了以下代码段的内容
+                ////对读取的数据进行分析
+                //this.AnalyseProtocolFromSerial(buf);
+                ////清除字符串构造器的内容
+                //myStringBuilder.Clear();
+                ////因为要访问ui资源，所以需要使用invoke方式同步ui。
+                //this.Invoke((EventHandler)(delegate
+                //{
+                //    //依次的拼接出16进制字符串
+                //    foreach (byte b in buf)
+                //    {
+                //        myStringBuilder.Append(b.ToString("X2") + " ");
+                //    }
+                //    //追加的形式添加到文本框末端，并滚动到最后。
+                //    this.txGet.AppendText(myStringBuilder.ToString());
+                //    this.txGet.AppendText("\n");
+                //    //修改接收计数
+                //    toolStripStatusDataRcv.Text = "已接收字节数：" + received_count.ToString();//更新界面
+                //}));
 
             }
             //catch (Exception ex)
@@ -183,16 +191,20 @@ namespace CommunicationApp
             {
                 buf.Add(byte.Parse(m.Value, System.Globalization.NumberStyles.HexNumber));
             }
-            if (isByNet)//通过网络发送
-            {
-                this.SendByNet(buf);
-            }
-            else //通过串口发送
+            if (comm.IsOpen) //通过串口发送
             {
                 //转换列表为数组后发送
                 comm.Write(buf.ToArray(), 0, buf.Count);
             }
-                //记录发送的字节数
+            else if (isByNet)//通过网络发送
+            {
+                this.SendByNet(buf);
+            }
+            else //网口串口都未打开，则什么都不做
+            {
+                return;
+            }
+            //记录发送的字节数
                 sendCount = buf.Count;
                 send_count += sendCount;//累加发送字节数
                 toolStripStatusDataSent.Text = "已发送字节数：" + send_count.ToString();//更新界面
@@ -261,8 +273,19 @@ namespace CommunicationApp
                         buf[myProtocol.StartingPosition + i] = temp[i];
                     }
                 }
-                //向串口写数据
-                comm.Write(buf.ToArray(), 0, buf.Count());
+                if (comm.IsOpen)
+                {
+                    //向串口写数据
+                    comm.Write(buf.ToArray(), 0, buf.Count());
+                }
+                else if (isByNet)
+                {
+                    this.SendByNet(buf);
+                }
+                else //网口串口都未打开，则什么都不做
+                {
+                    return;
+                }
                 //记录发送的字节数
                 sendCount = buf.Count;
                 send_count += sendCount;//累加发送字节数
@@ -427,13 +450,31 @@ namespace CommunicationApp
                 isByNet = false;
                 buttonByNet.Text = "开启网络收发";
                 buttonOpenClose.Enabled = true;
+                //终端接收网络数据线程
                 threadNet.Abort();
+                //关闭udp协议监听端口
+                udpClientRcv.Close();
+                //udpClientSend.Close();
             }
         }
 
         private void ListenNet()
         {
-            //throw new NotImplementedException();
+            //声明终结点和端口号
+            IPEndPoint iep = null;
+            int portNum;
+            if (Int32.TryParse(textBoxPortNum.Text,out portNum))
+            {
+                //初始化接收用UdpClient
+                udpClientRcv = new UdpClient(portNum);
+                while (true)
+                {
+                    //获得网络发送过来的数据包
+                    byte[] buf =  udpClientRcv.Receive(ref iep);
+                    //调用委托，对发过来的数据包进行处理
+                    invokeDataRcv(buf);
+                }
+            }
         }
 
         /// <summary>
@@ -442,17 +483,45 @@ namespace CommunicationApp
         /// <param name="buf"></param>
         private void SendByNet(List<byte> buf)
         {
-            //初始化udpClient协议
+            //初始化发送用UdpClient
             udpClientSend = new UdpClient();
-            //向指定IP地址发送数据
+            //存储IP地址信息和端口号
             IPAddress addressTosend;
             int portNum;
+            //向指定IP地址发送数据
             if (IPAddress.TryParse(textBoxIpAddress.Text, out addressTosend) && Int32.TryParse(textBoxPortNum.Text,out portNum))
             {
                 //端口
                 udpClientSend.Connect(addressTosend, portNum);
                 udpClientSend.Send(buf.ToArray(), buf.Count);
             }
+        }
+
+        /// <summary>
+        /// 接收数据并进行处理的方法
+        /// </summary>
+        /// <param name="buf"></param>
+        private void ReceiveDataMethod(byte[] buf)
+        {
+            received_count += buf.Length;//增加接收计数
+            //对读取的数据进行分析
+            this.AnalyseProtocolFromSerial(buf);
+            //清除字符串构造器的内容
+            myStringBuilder.Clear();
+            //因为要访问ui资源，所以需要使用invoke方式同步ui。
+            this.Invoke((EventHandler)(delegate
+            {
+                //依次的拼接出16进制字符串
+                foreach (byte b in buf)
+                {
+                    myStringBuilder.Append(b.ToString("X2") + " ");
+                }
+                //追加的形式添加到文本框末端，并滚动到最后。
+                this.txGet.AppendText(myStringBuilder.ToString());
+                this.txGet.AppendText("\n");
+                //修改接收计数
+                toolStripStatusDataRcv.Text = "已接收字节数：" + received_count.ToString();//更新界面
+            }));
         }
 
    }
