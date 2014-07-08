@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.IO.Ports;
 using System.Linq;
 using System.Net;
@@ -27,10 +28,17 @@ namespace CommunicationApp
         private bool isByNet = false;//是否是开启了网络发送或接收
         //声明发送用UdpClient
         private UdpClient udpClientSend;
-        //声明接受用UdpClient
+        //声明接收用UdpClient
         private UdpClient udpClientRcv;
+        //声明发送用TcpClient
+        private TcpClient tcpClientSend;
+        //声明接收用TcpListener和TcpClient
+        private TcpListener tcpListenerRcv;
+        private TcpClient clientTCP;
         //声明监听网络端口的线程
         Thread threadNet;
+        //声明监听TCP协议的线程
+        Thread threadTCP;
         //定义InvokeDataRcvDelegate委托的事件
         public event InvokeDataRcvDelegate invokeDataRcv;
 
@@ -425,11 +433,22 @@ namespace CommunicationApp
                 isByNet = false;
                 buttonByNet.Text = "开启网络收发";
                 buttonOpenClose.Enabled = true;
-                //终端接收网络数据线程
+                //终止接收网络数据线程
                 threadNet.Abort();
-                //关闭udp协议监听端口
-                udpClientRcv.Close();
-                //udpClientSend.Close();
+                if (threadTCP != null)
+                {
+                    threadTCP.Abort();
+                }
+                if (udpClientRcv != null)
+                {
+                    //关闭udp协议监听端口
+                    udpClientRcv.Close();                 
+                }
+                if (tcpListenerRcv != null)
+                {
+                    //关闭TCP协议监听端口
+                    tcpListenerRcv.Stop();                    
+                }
             }
         }
 
@@ -438,17 +457,60 @@ namespace CommunicationApp
         /// </summary>
         private void ListenNet()
         {
-            //声明终结点和端口号
-            IPEndPoint iep = null;
-            int portNum;
-            if (Int32.TryParse(textBoxPortNum.Text, out portNum))
+            int portNum;//设置端口号，如果是无法解析出正确端口号，则返回
+            if (!Int32.TryParse(textBoxPortNum.Text, out portNum))
             {
+                return;
+            }
+            if (radioButtonUdp.Checked)//选中Udp协议
+            {
+                //声明终结点和端口号
+                IPEndPoint iep = null;
                 //初始化接收用UdpClient
                 udpClientRcv = new UdpClient(portNum);
                 while (true)
                 {
                     //获得网络发送过来的数据包
                     byte[] buf = udpClientRcv.Receive(ref iep);
+                    //调用数据处理的事件委托，对读取的数据进行分析并显示
+                    invokeDataRcv(buf);
+                }
+            }
+            else if (radioButtonTCP.Checked)//选中TCP/IP协议
+            {
+                //IPAddress localIP = Dns.GetHostAddresses(Dns.GetHostName())[0];
+                threadTCP = new Thread(new ThreadStart(ListenTCP));
+                threadTCP.IsBackground = true;
+                threadTCP.Start();
+            }
+        }
+
+        /// <summary>
+        /// 侦听TCP的线程方法
+        /// </summary>
+        private void ListenTCP()
+        {
+            int portNum;//设置端口号
+            Int32.TryParse(textBoxPortNum.Text, out portNum);
+            //定义TcpListener,开启侦听网络端口
+            tcpListenerRcv = new TcpListener(IPAddress.Any, portNum);
+            tcpListenerRcv.Start();
+            byte[] buf;
+            while (true)
+            {
+                if (tcpListenerRcv.Pending())
+                {
+                    //开启阻塞式接收TCP连接，接收到一个TcpClient对象
+                    clientTCP = tcpListenerRcv.AcceptTcpClient();
+                    //获得用于读写的NetworkStream对象
+                    NetworkStream netStream = clientTCP.GetStream();
+                    //使用一个StreamReader读取stream对象中的数据
+                    StreamReader sr = new StreamReader(netStream);
+                    string stringBuf = sr.ReadToEnd();//以字符串形式读取netStream流中的内容
+                    //转存为byte[] buf，以ASCII格式解码（因为发送的时候StreamWriter也是用ASCII编码的）
+                    buf = Encoding.ASCII.GetBytes(stringBuf);
+                    sr.Close();//关闭StreamReader流
+                    clientTCP.Close();
                     //调用数据处理的事件委托，对读取的数据进行分析并显示
                     invokeDataRcv(buf);
                 }
@@ -461,18 +523,39 @@ namespace CommunicationApp
         /// <param name="buf"></param>
         private void SendByNet(List<byte> buf)
         {
-            //初始化发送用UdpClient
-            udpClientSend = new UdpClient();
             //存储IP地址信息和端口号
             IPAddress addressTosend;
             int portNum;
-            //向指定IP地址发送数据
-            if (IPAddress.TryParse(textBoxIpAddress.Text, out addressTosend) && Int32.TryParse(textBoxPortNum.Text, out portNum))
+            if (!(IPAddress.TryParse(textBoxIpAddress.Text, out addressTosend) && Int32.TryParse(textBoxPortNum.Text, out portNum)))
             {
-                //端口
+                return;//如果是无法解析出正确端口号和IP地址，则返回
+            }
+            if (radioButtonUdp.Checked)//选中Udp协议
+            {
+                //初始化发送用UdpClient
+                udpClientSend = new UdpClient();
+                //连接到相应端口，向指定IP地址发送数据
                 udpClientSend.Connect(addressTosend, portNum);
                 udpClientSend.Send(buf.ToArray(), buf.Count);
                 udpClientSend.Close();
+            }
+            else if (radioButtonTCP.Checked)//选中TCP/IP协议
+            {
+                //初始化发送用tcpClientSend
+                tcpClientSend = new TcpClient();
+                //连接到相应端口，向指定IP地址发送数据
+                tcpClientSend.Connect(addressTosend, portNum);
+                //获得用于发送的NetworkStream对象
+                NetworkStream netStream = tcpClientSend.GetStream();
+                //使用一个StreamWriter存储要写入stream对象中的数据
+                StreamWriter sw = new StreamWriter(netStream, Encoding.ASCII);
+                //以ASCII格式编码，存储到要发送的String流中
+                string stringBuf = Encoding.ASCII.GetString(buf.ToArray());
+                //以字符串形式写入netStream流中的内容
+                sw.Write(stringBuf);
+                sw.Flush();
+                sw.Close();//关闭StreamWriter流
+                tcpClientSend.Close();                   
             }
         } 
         #endregion
