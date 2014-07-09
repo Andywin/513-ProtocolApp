@@ -1,6 +1,7 @@
 ﻿using ConvertProvider;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Drawing;
 using System.IO;
 using System.IO.Ports;
@@ -644,6 +645,42 @@ namespace CommunicationApp
                 buttonTimingSendByRaw.Text = "开启定时发送";
                 sendTimerByRaw.Stop();
             }
+        }
+
+        /// <summary>
+        /// 单击保存协议按钮，对表格中的协议进行保存
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button1_Click(object sender, EventArgs e)
+        {
+            DataSet ds = new DataSet();
+            
+            SaveFileDialog saveDialog = new SaveFileDialog();
+
+            saveDialog.OverwritePrompt = true;
+            saveDialog.FileName = "myProtocol";
+            saveDialog.DefaultExt = "xml";
+            saveDialog.Filter = "xml files (*.xml)|*.xml|All files (*.*)|*.*";
+            saveDialog.FilterIndex = 1;
+            saveDialog.InitialDirectory = @"D:\";
+
+            saveDialog.RestoreDirectory = true;
+            if (saveDialog.ShowDialog() == DialogResult.OK)
+            {
+                
+            }
+            
+        }
+
+        /// <summary>
+        /// 单击加载协议按钮，从对话框中加载XML格式的协议并显示
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void buttonLoadPtc_Click(object sender, EventArgs e)
+        {
+
         }
 
 
