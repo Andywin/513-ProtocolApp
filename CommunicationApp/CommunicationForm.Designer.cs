@@ -33,7 +33,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.comboBaudrate = new System.Windows.Forms.ComboBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.buttonOpenClose = new System.Windows.Forms.Button();
+            this.buttonBySerialPort = new System.Windows.Forms.Button();
             this.buttonReset = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.txGet = new System.Windows.Forms.TextBox();
@@ -77,6 +77,8 @@
             this.label6 = new System.Windows.Forms.Label();
             this.radioButtonTCP = new System.Windows.Forms.RadioButton();
             this.radioButtonUdp = new System.Windows.Forms.RadioButton();
+            this.buttonTimingSendByPtc = new System.Windows.Forms.Button();
+            this.buttonTimingSendByRaw = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvSendData)).BeginInit();
@@ -141,7 +143,7 @@
             this.groupBox1.Controls.Add(this.comboPortName);
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.comboBaudrate);
-            this.groupBox1.Controls.Add(this.buttonOpenClose);
+            this.groupBox1.Controls.Add(this.buttonBySerialPort);
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Location = new System.Drawing.Point(622, 12);
             this.groupBox1.Name = "groupBox1";
@@ -150,15 +152,15 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "串口通信";
             // 
-            // buttonOpenClose
+            // buttonBySerialPort
             // 
-            this.buttonOpenClose.Location = new System.Drawing.Point(84, 91);
-            this.buttonOpenClose.Name = "buttonOpenClose";
-            this.buttonOpenClose.Size = new System.Drawing.Size(109, 23);
-            this.buttonOpenClose.TabIndex = 5;
-            this.buttonOpenClose.Text = "开启串口收发";
-            this.buttonOpenClose.UseVisualStyleBackColor = true;
-            this.buttonOpenClose.Click += new System.EventHandler(this.buttonOpenClose_Click);
+            this.buttonBySerialPort.Location = new System.Drawing.Point(84, 91);
+            this.buttonBySerialPort.Name = "buttonOpenClose";
+            this.buttonBySerialPort.Size = new System.Drawing.Size(109, 23);
+            this.buttonBySerialPort.TabIndex = 5;
+            this.buttonBySerialPort.Text = "开启串口收发";
+            this.buttonBySerialPort.UseVisualStyleBackColor = true;
+            this.buttonBySerialPort.Click += new System.EventHandler(this.buttonBySerialPort_Click);
             // 
             // buttonReset
             // 
@@ -211,6 +213,7 @@
             // 
             // groupBox4
             // 
+            this.groupBox4.Controls.Add(this.buttonTimingSendByPtc);
             this.groupBox4.Controls.Add(this.buttonClearSend);
             this.groupBox4.Controls.Add(this.buttonSendByProtocol);
             this.groupBox4.Controls.Add(this.buttonChoosePtcSend);
@@ -224,7 +227,7 @@
             // 
             // buttonClearSend
             // 
-            this.buttonClearSend.Location = new System.Drawing.Point(318, 225);
+            this.buttonClearSend.Location = new System.Drawing.Point(237, 226);
             this.buttonClearSend.Name = "buttonClearSend";
             this.buttonClearSend.Size = new System.Drawing.Size(75, 23);
             this.buttonClearSend.TabIndex = 13;
@@ -234,9 +237,9 @@
             // 
             // buttonSendByProtocol
             // 
-            this.buttonSendByProtocol.Location = new System.Drawing.Point(480, 225);
+            this.buttonSendByProtocol.Location = new System.Drawing.Point(399, 226);
             this.buttonSendByProtocol.Name = "buttonSendByProtocol";
-            this.buttonSendByProtocol.Size = new System.Drawing.Size(93, 23);
+            this.buttonSendByProtocol.Size = new System.Drawing.Size(75, 23);
             this.buttonSendByProtocol.TabIndex = 10;
             this.buttonSendByProtocol.Text = "按协议发送";
             this.buttonSendByProtocol.UseVisualStyleBackColor = true;
@@ -244,7 +247,7 @@
             // 
             // buttonChoosePtcSend
             // 
-            this.buttonChoosePtcSend.Location = new System.Drawing.Point(399, 225);
+            this.buttonChoosePtcSend.Location = new System.Drawing.Point(318, 226);
             this.buttonChoosePtcSend.Name = "buttonChoosePtcSend";
             this.buttonChoosePtcSend.Size = new System.Drawing.Size(75, 23);
             this.buttonChoosePtcSend.TabIndex = 12;
@@ -502,6 +505,7 @@
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.buttonTimingSendByRaw);
             this.tabPage2.Controls.Add(this.label5);
             this.tabPage2.Controls.Add(this.buttonSendByRawData);
             this.tabPage2.Controls.Add(this.txSend);
@@ -603,6 +607,26 @@
             this.radioButtonUdp.Text = "UDP协议";
             this.radioButtonUdp.UseVisualStyleBackColor = true;
             // 
+            // buttonTimingSendByPtc
+            // 
+            this.buttonTimingSendByPtc.Location = new System.Drawing.Point(480, 226);
+            this.buttonTimingSendByPtc.Name = "buttonTimingSendByptc";
+            this.buttonTimingSendByPtc.Size = new System.Drawing.Size(94, 23);
+            this.buttonTimingSendByPtc.TabIndex = 14;
+            this.buttonTimingSendByPtc.Text = "开启定时发送";
+            this.buttonTimingSendByPtc.UseVisualStyleBackColor = true;
+            this.buttonTimingSendByPtc.Click += new System.EventHandler(this.buttonTimingSendByPtc_Click);
+            // 
+            // buttonTimingSendByRaw
+            // 
+            this.buttonTimingSendByRaw.Location = new System.Drawing.Point(483, 305);
+            this.buttonTimingSendByRaw.Name = "buttonTimingSendByRaw";
+            this.buttonTimingSendByRaw.Size = new System.Drawing.Size(93, 23);
+            this.buttonTimingSendByRaw.TabIndex = 15;
+            this.buttonTimingSendByRaw.Text = "开启定时发送";
+            this.buttonTimingSendByRaw.UseVisualStyleBackColor = true;
+            this.buttonTimingSendByRaw.Click += new System.EventHandler(this.buttonTimingSendByRaw_Click);
+            // 
             // CommunicationForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -645,7 +669,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.ComboBox comboBaudrate;
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.Button buttonOpenClose;
+        private System.Windows.Forms.Button buttonBySerialPort;
         private System.Windows.Forms.Button buttonReset;
         private System.Windows.Forms.TextBox txGet;
         private System.Windows.Forms.Button buttonSendByRawData;
@@ -689,6 +713,8 @@
         private System.Windows.Forms.RadioButton radioButtonTCP;
         private System.Windows.Forms.RadioButton radioButtonUdp;
         private System.Windows.Forms.Button buttonByNet;
+        private System.Windows.Forms.Button buttonTimingSendByPtc;
+        private System.Windows.Forms.Button buttonTimingSendByRaw;
     }
 }
 

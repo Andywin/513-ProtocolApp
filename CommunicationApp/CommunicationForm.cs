@@ -39,6 +39,9 @@ namespace CommunicationApp
         Thread threadNet;
         //声明监听TCP协议的线程
         Thread threadTCP;
+        //定义定时发送的Timer
+        System.Windows.Forms.Timer sendTimerByPtc = new System.Windows.Forms.Timer();
+        System.Windows.Forms.Timer sendTimerByRaw = new System.Windows.Forms.Timer();
         //定义InvokeDataRcvDelegate委托的事件
         public event InvokeDataRcvDelegate invokeDataRcv;
 
@@ -78,6 +81,12 @@ namespace CommunicationApp
             //设置数据长度列颜色为灰色
             dgvReceiveData.Columns["ProtocolDataLengthRcv"].DefaultCellStyle.BackColor = Color.LightGray;
             dgvSendData.Columns["ProtocolDataLength"].DefaultCellStyle.BackColor = Color.LightGray;
+            
+            //设置Timer的计时时间，绑定事件
+            sendTimerByPtc.Interval = 1000;//设置发送间隔为1000ms（1s）
+            sendTimerByPtc.Tick += buttonSendByProtocol_Click;//将定时器绑定到按协议发送的方法
+            sendTimerByRaw.Interval = 1000;//设置发送间隔为1000ms（1s）
+            sendTimerByRaw.Tick += buttonSendByRawData_Click;//将定时器绑定到按原始数据发送的方法
         }
 
         /// <summary>
@@ -117,7 +126,7 @@ namespace CommunicationApp
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void buttonOpenClose_Click(object sender, EventArgs e)
+        private void buttonBySerialPort_Click(object sender, EventArgs e)
         {
             //根据当前串口对象，来判断操作
             if (comm.IsOpen)
@@ -150,7 +159,7 @@ namespace CommunicationApp
                 }
             }
             //设置按钮的状态
-            buttonOpenClose.Text = comm.IsOpen ? "关闭串口收发" : "开启串口收发";
+            buttonBySerialPort.Text = comm.IsOpen ? "关闭串口收发" : "开启串口收发";
             buttonByNet.Enabled = !comm.IsOpen;//串口打开则disable网络收发
         }
 
@@ -421,7 +430,7 @@ namespace CommunicationApp
             {
                 isByNet = true;
                 buttonByNet.Text = "关闭网络收发";
-                buttonOpenClose.Enabled = false;
+                buttonBySerialPort.Enabled = false;
                 //开一线程,监听网络端口
                 threadNet = new Thread(new ThreadStart(ListenNet));
                 //设置为后台
@@ -432,7 +441,7 @@ namespace CommunicationApp
             {
                 isByNet = false;
                 buttonByNet.Text = "开启网络收发";
-                buttonOpenClose.Enabled = true;
+                buttonBySerialPort.Enabled = true;
                 //终止接收网络数据线程
                 threadNet.Abort();
                 if (threadTCP != null)
@@ -555,7 +564,7 @@ namespace CommunicationApp
                 sw.Write(stringBuf);
                 sw.Flush();
                 sw.Close();//关闭StreamWriter流
-                tcpClientSend.Close();                   
+                tcpClientSend.Close();//关闭tcpClient              
             }
         } 
         #endregion
@@ -586,6 +595,57 @@ namespace CommunicationApp
                 toolStripStatusDataRcv.Text = "已接收字节数：" + receivedCount.ToString();//更新界面
             }));
         }
+
+        /// <summary>
+        /// 点击按协议发送框中的定时发送按钮
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void buttonTimingSendByPtc_Click(object sender, EventArgs e)
+        {
+            //如果按原始数据发送的定时器在启动状态，则停止该计时器
+            if (sendTimerByRaw.Enabled)
+            {
+                sendTimerByRaw.Enabled = false;
+                buttonTimingSendByRaw.Text = "开启定时发送";
+            }
+            if (buttonTimingSendByPtc.Text == "开启定时发送")
+            {
+                buttonTimingSendByPtc.Text = "关闭定时发送";
+                sendTimerByPtc.Start();
+            }
+            else
+            {
+                buttonTimingSendByPtc.Text = "开启定时发送";
+                sendTimerByPtc.Stop();
+            }
+        }
+
+        /// <summary>
+        /// 点击按原始数据发送框中的定时发送按钮
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void buttonTimingSendByRaw_Click(object sender, EventArgs e)
+        {
+            //如果按协议发送的定时器在启动状态，则停止该计时器
+            if (sendTimerByPtc.Enabled)
+            {
+                sendTimerByPtc.Enabled = false;
+                buttonTimingSendByPtc.Text = "开启定时发送";
+            }
+            if (buttonTimingSendByRaw.Text == "开启定时发送")
+            {
+                buttonTimingSendByRaw.Text = "关闭定时发送";
+                sendTimerByRaw.Start();
+            }
+            else
+            {
+                buttonTimingSendByRaw.Text = "开启定时发送";
+                sendTimerByRaw.Stop();
+            }
+        }
+
 
    }
 }
