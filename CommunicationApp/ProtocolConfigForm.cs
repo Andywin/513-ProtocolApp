@@ -17,6 +17,7 @@ namespace CommunicationApp
         DataSet protocol = new DataSet(); //存储数据的DataSet
         private int newProtocolFlag = 1; //设置计数器，添加的新协议数
         DataGridView dgvExchange; //设置一个DataGridView变量存储父窗体的DataGridView
+        DataSet dataSetExchange; //设置一个DataSet变量存储父窗体的DataSet
 
         public ProtocolConfigForm()
         {
@@ -31,6 +32,12 @@ namespace CommunicationApp
         public void ShowDialog(IWin32Window parent, DataGridView dgvParent)
         {
             this.dgvExchange = dgvParent;
+            this.ShowDialog(parent);
+        }
+
+        public void ShowDialog(IWin32Window parent, DataSet dataSetParent)
+        {
+            this.dataSetExchange = dataSetParent;
             this.ShowDialog(parent);
         }
 
@@ -90,7 +97,7 @@ namespace CommunicationApp
             for (int i = 0; i < dgvProtocolLib.Rows.Count; i++)
             {
                 DataGridViewComboBoxCell comboBoxCell = new DataGridViewComboBoxCell();
-                comboBoxCell.Style.BackColor = Color.Cornsilk;
+                comboBoxCell.Style.BackColor = Color.LightGray;
                 comboBoxCell.Items.AddRange("Boolean", "Short", "Ushort", "Int", "Uint", "Long", "Ulong", "Float", "Double", "Char", "String");
                 dgvProtocolLib.Rows[i].Cells["ProtocolDataType"] = comboBoxCell;
             }
@@ -311,7 +318,7 @@ namespace CommunicationApp
             protocol.Tables["CommunicationProtocol"].Rows.Add(newRow);
             //绑定数据列
             BindingDataTable();
-            //初始化数据类型复选框
+            //初始化checkState词典类实例的值
             InitializeCheckState();
             //将焦点置于最新的单元格,并编辑ProtocolName单元格
             dgvProtocolLib.CurrentCell = dgvProtocolLib.Rows[dgvProtocolLib.Rows.Count - 1].Cells["ProtocolName"];
@@ -329,14 +336,44 @@ namespace CommunicationApp
         }
 
         /// <summary>
-        /// 单击确认按钮，把选中的所有协议存储到dgv中
+        /// 单击确认按钮，把选中的所有协议存储到dgv或者dataSet中
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void buttonOK_Click(object sender, EventArgs e)
         {
-            this.SavingDataGridView();
+            if (this.dgvExchange != null)
+            {
+                this.SavingDataGridView();              
+            }
+            else if (this.dataSetExchange != null)
+            {
+                this.SavingDataSet();
+            }
             this.Close();
+        }
+
+        /// <summary>
+        /// 对DataSet进行保存
+        /// </summary>
+        private void SavingDataSet()
+        {
+            for (int i = 0; i < dgvProtocolLib.Rows.Count; i++)
+            {
+                string protocolGuid = dgvProtocolLib.Rows[i].Cells["Guid"].Value.ToString();
+                if (checkState[protocolGuid])
+                {
+                    //新建DataRow实例，存储要添加的行
+                   DataRow rowsToAdd = dataSetExchange.Tables["Protocols"].NewRow();
+                   rowsToAdd[0] = dgvProtocolLib.Rows[i].Cells["ProtocolName"].Value;
+                   rowsToAdd[1] = dgvProtocolLib.Rows[i].Cells["ProtocolDataType"].Value;
+                   rowsToAdd[2] = dgvProtocolLib.Rows[i].Cells["DataLength"].Value;
+                   rowsToAdd[3] = dgvProtocolLib.Rows[i].Cells["StartingPosition"].Value;
+                   rowsToAdd[4] = dgvProtocolLib.Rows[i].Cells["ProtocolCount"].Value;
+                    //将dataRow添加到dataSet中
+                   dataSetExchange.Tables["Protocols"].Rows.Add(rowsToAdd);
+                }
+            }
         }
 
         /// <summary>

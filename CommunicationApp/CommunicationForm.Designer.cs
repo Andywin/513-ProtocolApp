@@ -40,17 +40,13 @@
             this.buttonSendByRawData = new System.Windows.Forms.Button();
             this.txSend = new System.Windows.Forms.TextBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.buttonLoadPtc = new System.Windows.Forms.Button();
+            this.buttonSavePtc = new System.Windows.Forms.Button();
             this.buttonTimingSendByPtc = new System.Windows.Forms.Button();
             this.buttonClearSend = new System.Windows.Forms.Button();
             this.buttonSendByProtocol = new System.Windows.Forms.Button();
             this.buttonChoosePtcSend = new System.Windows.Forms.Button();
             this.dgvSendData = new System.Windows.Forms.DataGridView();
-            this.ProtocolName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ProtocolDataType = new System.Windows.Forms.DataGridViewComboBoxColumn();
-            this.ProtocolDataLength = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.StartingPosition = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ProtocolCount = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.DataContent = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusDataSent = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusDataRcv = new System.Windows.Forms.ToolStripStatusLabel();
@@ -60,13 +56,6 @@
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.buttonClearReceive = new System.Windows.Forms.Button();
             this.dgvReceiveData = new System.Windows.Forms.DataGridView();
-            this.ProtocolNameRcv = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ProtocolDataTypeRcv = new System.Windows.Forms.DataGridViewComboBoxColumn();
-            this.ProtocolDataLengthRcv = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.StartingPositionRcv = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.CountRcv = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.DataContentRcv = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.RawDataRcv = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.buttonChoosePtcReceive = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.buttonTimingSendByRaw = new System.Windows.Forms.Button();
@@ -79,8 +68,13 @@
             this.label6 = new System.Windows.Forms.Label();
             this.radioButtonTCP = new System.Windows.Forms.RadioButton();
             this.radioButtonUdp = new System.Windows.Forms.RadioButton();
-            this.buttonSavePtc = new System.Windows.Forms.Button();
-            this.buttonLoadPtc = new System.Windows.Forms.Button();
+            this.ProtocolNameRcv = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ProtocolDataTypeRcv = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.ProtocolDataLengthRcv = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.StartingPositionRcv = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.CountRcv = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.DataContentRcv = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.RawDataRcv = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.groupBox1.SuspendLayout();
             this.groupBox4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvSendData)).BeginInit();
@@ -229,6 +223,26 @@
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "数据内容协议";
             // 
+            // buttonLoadPtc
+            // 
+            this.buttonLoadPtc.Location = new System.Drawing.Point(87, 226);
+            this.buttonLoadPtc.Name = "buttonLoadPtc";
+            this.buttonLoadPtc.Size = new System.Drawing.Size(75, 23);
+            this.buttonLoadPtc.TabIndex = 15;
+            this.buttonLoadPtc.Text = "加载协议";
+            this.buttonLoadPtc.UseVisualStyleBackColor = true;
+            this.buttonLoadPtc.Click += new System.EventHandler(this.buttonLoadPtc_Click);
+            // 
+            // buttonSavePtc
+            // 
+            this.buttonSavePtc.Location = new System.Drawing.Point(6, 226);
+            this.buttonSavePtc.Name = "buttonSavePtc";
+            this.buttonSavePtc.Size = new System.Drawing.Size(75, 23);
+            this.buttonSavePtc.TabIndex = 13;
+            this.buttonSavePtc.Text = "保存协议";
+            this.buttonSavePtc.UseVisualStyleBackColor = true;
+            this.buttonSavePtc.Click += new System.EventHandler(this.buttonSavePtc_Click);
+            // 
             // buttonTimingSendByPtc
             // 
             this.buttonTimingSendByPtc.Location = new System.Drawing.Point(480, 226);
@@ -272,77 +286,12 @@
             // dgvSendData
             // 
             this.dgvSendData.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvSendData.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.ProtocolName,
-            this.ProtocolDataType,
-            this.ProtocolDataLength,
-            this.StartingPosition,
-            this.ProtocolCount,
-            this.DataContent});
             this.dgvSendData.Location = new System.Drawing.Point(6, 14);
             this.dgvSendData.Name = "dgvSendData";
             this.dgvSendData.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
             this.dgvSendData.RowTemplate.Height = 23;
             this.dgvSendData.Size = new System.Drawing.Size(567, 205);
             this.dgvSendData.TabIndex = 1;
-            // 
-            // ProtocolName
-            // 
-            this.ProtocolName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.ProtocolName.HeaderText = "协议名";
-            this.ProtocolName.Name = "ProtocolName";
-            this.ProtocolName.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.ProtocolName.Width = 47;
-            // 
-            // ProtocolDataType
-            // 
-            this.ProtocolDataType.HeaderText = "数据类型";
-            this.ProtocolDataType.Items.AddRange(new object[] {
-            "Boolean",
-            "Short",
-            "Ushort",
-            "Int",
-            "Uint",
-            "Long",
-            "Ulong",
-            "Float",
-            "Double",
-            "Char",
-            "String"});
-            this.ProtocolDataType.MaxDropDownItems = 12;
-            this.ProtocolDataType.Name = "ProtocolDataType";
-            this.ProtocolDataType.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            // 
-            // ProtocolDataLength
-            // 
-            this.ProtocolDataLength.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.ProtocolDataLength.HeaderText = "数据长度";
-            this.ProtocolDataLength.Name = "ProtocolDataLength";
-            this.ProtocolDataLength.ReadOnly = true;
-            this.ProtocolDataLength.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.ProtocolDataLength.Width = 59;
-            // 
-            // StartingPosition
-            // 
-            this.StartingPosition.HeaderText = "起始位置";
-            this.StartingPosition.Name = "StartingPosition";
-            this.StartingPosition.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.StartingPosition.Width = 80;
-            // 
-            // ProtocolCount
-            // 
-            this.ProtocolCount.HeaderText = "个数";
-            this.ProtocolCount.Name = "ProtocolCount";
-            this.ProtocolCount.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.ProtocolCount.Width = 60;
-            // 
-            // DataContent
-            // 
-            this.DataContent.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.DataContent.HeaderText = "数据内容";
-            this.DataContent.Name = "DataContent";
-            this.DataContent.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.DataContent.Width = 59;
             // 
             // statusStrip1
             // 
@@ -439,73 +388,6 @@
             this.dgvReceiveData.RowTemplate.Height = 23;
             this.dgvReceiveData.Size = new System.Drawing.Size(569, 205);
             this.dgvReceiveData.TabIndex = 12;
-            // 
-            // ProtocolNameRcv
-            // 
-            this.ProtocolNameRcv.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.ProtocolNameRcv.HeaderText = "协议名";
-            this.ProtocolNameRcv.Name = "ProtocolNameRcv";
-            this.ProtocolNameRcv.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.ProtocolNameRcv.Width = 47;
-            // 
-            // ProtocolDataTypeRcv
-            // 
-            this.ProtocolDataTypeRcv.HeaderText = "数据类型";
-            this.ProtocolDataTypeRcv.Items.AddRange(new object[] {
-            "Boolean",
-            "Short",
-            "Ushort",
-            "Int",
-            "Uint",
-            "Long",
-            "Ulong",
-            "Float",
-            "Double",
-            "Char",
-            "String"});
-            this.ProtocolDataTypeRcv.MaxDropDownItems = 12;
-            this.ProtocolDataTypeRcv.Name = "ProtocolDataTypeRcv";
-            this.ProtocolDataTypeRcv.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            // 
-            // ProtocolDataLengthRcv
-            // 
-            this.ProtocolDataLengthRcv.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.ProtocolDataLengthRcv.HeaderText = "数据长度";
-            this.ProtocolDataLengthRcv.Name = "ProtocolDataLengthRcv";
-            this.ProtocolDataLengthRcv.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.ProtocolDataLengthRcv.Width = 59;
-            // 
-            // StartingPositionRcv
-            // 
-            this.StartingPositionRcv.HeaderText = "起始位置";
-            this.StartingPositionRcv.Name = "StartingPositionRcv";
-            this.StartingPositionRcv.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.StartingPositionRcv.Width = 80;
-            // 
-            // CountRcv
-            // 
-            this.CountRcv.HeaderText = "个数";
-            this.CountRcv.Name = "CountRcv";
-            this.CountRcv.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.CountRcv.Width = 60;
-            // 
-            // DataContentRcv
-            // 
-            this.DataContentRcv.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.DataContentRcv.HeaderText = "数据内容";
-            this.DataContentRcv.Name = "DataContentRcv";
-            this.DataContentRcv.ReadOnly = true;
-            this.DataContentRcv.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.DataContentRcv.Width = 59;
-            // 
-            // RawDataRcv
-            // 
-            this.RawDataRcv.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.RawDataRcv.HeaderText = "原始数据";
-            this.RawDataRcv.Name = "RawDataRcv";
-            this.RawDataRcv.ReadOnly = true;
-            this.RawDataRcv.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.RawDataRcv.Width = 59;
             // 
             // buttonChoosePtcReceive
             // 
@@ -631,25 +513,75 @@
             this.radioButtonUdp.Text = "UDP协议";
             this.radioButtonUdp.UseVisualStyleBackColor = true;
             // 
-            // buttonSavePtc
+            // ProtocolNameRcv
             // 
-            this.buttonSavePtc.Location = new System.Drawing.Point(6, 226);
-            this.buttonSavePtc.Name = "buttonSavePtc";
-            this.buttonSavePtc.Size = new System.Drawing.Size(75, 23);
-            this.buttonSavePtc.TabIndex = 13;
-            this.buttonSavePtc.Text = "保存协议";
-            this.buttonSavePtc.UseVisualStyleBackColor = true;
-            this.buttonSavePtc.Click += new System.EventHandler(this.button1_Click);
+            this.ProtocolNameRcv.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.ProtocolNameRcv.HeaderText = "协议名";
+            this.ProtocolNameRcv.Name = "ProtocolNameRcv";
+            this.ProtocolNameRcv.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.ProtocolNameRcv.Width = 47;
             // 
-            // buttonLoadPtc
+            // ProtocolDataTypeRcv
             // 
-            this.buttonLoadPtc.Location = new System.Drawing.Point(87, 226);
-            this.buttonLoadPtc.Name = "buttonLoadPtc";
-            this.buttonLoadPtc.Size = new System.Drawing.Size(75, 23);
-            this.buttonLoadPtc.TabIndex = 15;
-            this.buttonLoadPtc.Text = "加载协议";
-            this.buttonLoadPtc.UseVisualStyleBackColor = true;
-            this.buttonLoadPtc.Click += new System.EventHandler(this.buttonLoadPtc_Click);
+            this.ProtocolDataTypeRcv.FillWeight = 99.33774F;
+            this.ProtocolDataTypeRcv.HeaderText = "数据类型";
+            this.ProtocolDataTypeRcv.Items.AddRange(new object[] {
+            "Boolean",
+            "Short",
+            "Ushort",
+            "Int",
+            "Uint",
+            "Long",
+            "Ulong",
+            "Float",
+            "Double",
+            "Char",
+            "String"});
+            this.ProtocolDataTypeRcv.MaxDropDownItems = 12;
+            this.ProtocolDataTypeRcv.Name = "ProtocolDataTypeRcv";
+            this.ProtocolDataTypeRcv.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            // 
+            // ProtocolDataLengthRcv
+            // 
+            this.ProtocolDataLengthRcv.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.ProtocolDataLengthRcv.HeaderText = "数据长度";
+            this.ProtocolDataLengthRcv.Name = "ProtocolDataLengthRcv";
+            this.ProtocolDataLengthRcv.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.ProtocolDataLengthRcv.Width = 59;
+            // 
+            // StartingPositionRcv
+            // 
+            this.StartingPositionRcv.FillWeight = 93.8032F;
+            this.StartingPositionRcv.HeaderText = "起始位置";
+            this.StartingPositionRcv.Name = "StartingPositionRcv";
+            this.StartingPositionRcv.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.StartingPositionRcv.Width = 94;
+            // 
+            // CountRcv
+            // 
+            this.CountRcv.FillWeight = 106.859F;
+            this.CountRcv.HeaderText = "个数";
+            this.CountRcv.Name = "CountRcv";
+            this.CountRcv.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.CountRcv.Width = 47;
+            // 
+            // DataContentRcv
+            // 
+            this.DataContentRcv.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.DataContentRcv.HeaderText = "数据内容";
+            this.DataContentRcv.Name = "DataContentRcv";
+            this.DataContentRcv.ReadOnly = true;
+            this.DataContentRcv.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.DataContentRcv.Width = 59;
+            // 
+            // RawDataRcv
+            // 
+            this.RawDataRcv.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.RawDataRcv.HeaderText = "原始数据";
+            this.RawDataRcv.Name = "RawDataRcv";
+            this.RawDataRcv.ReadOnly = true;
+            this.RawDataRcv.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.RawDataRcv.Width = 59;
             // 
             // CommunicationForm
             // 
@@ -715,19 +647,6 @@
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Button buttonClearSend;
         private System.Windows.Forms.Button buttonClearReceive;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ProtocolName;
-        private System.Windows.Forms.DataGridViewComboBoxColumn ProtocolDataType;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ProtocolDataLength;
-        private System.Windows.Forms.DataGridViewTextBoxColumn StartingPosition;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ProtocolCount;
-        private System.Windows.Forms.DataGridViewTextBoxColumn DataContent;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ProtocolNameRcv;
-        private System.Windows.Forms.DataGridViewComboBoxColumn ProtocolDataTypeRcv;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ProtocolDataLengthRcv;
-        private System.Windows.Forms.DataGridViewTextBoxColumn StartingPositionRcv;
-        private System.Windows.Forms.DataGridViewTextBoxColumn CountRcv;
-        private System.Windows.Forms.DataGridViewTextBoxColumn DataContentRcv;
-        private System.Windows.Forms.DataGridViewTextBoxColumn RawDataRcv;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusDataRcv;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.TextBox textBoxPortNum;
@@ -741,6 +660,13 @@
         private System.Windows.Forms.Button buttonTimingSendByRaw;
         private System.Windows.Forms.Button buttonSavePtc;
         private System.Windows.Forms.Button buttonLoadPtc;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ProtocolNameRcv;
+        private System.Windows.Forms.DataGridViewComboBoxColumn ProtocolDataTypeRcv;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ProtocolDataLengthRcv;
+        private System.Windows.Forms.DataGridViewTextBoxColumn StartingPositionRcv;
+        private System.Windows.Forms.DataGridViewTextBoxColumn CountRcv;
+        private System.Windows.Forms.DataGridViewTextBoxColumn DataContentRcv;
+        private System.Windows.Forms.DataGridViewTextBoxColumn RawDataRcv;
     }
 }
 

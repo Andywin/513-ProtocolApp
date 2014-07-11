@@ -46,6 +46,17 @@ namespace CommunicationApp
         //定义InvokeDataRcvDelegate委托的事件
         public event InvokeDataRcvDelegate invokeDataRcv;
 
+        //定义数据列表，存储需要保存的发送协议表格
+        DataSet dataSetSend = new DataSet();
+        DataTable ptcsToSave = new DataTable("Protocols");
+        //定义dgvSendData的各列
+        DataGridViewTextBoxColumn protocolNameColumn = new DataGridViewTextBoxColumn();
+        DataGridViewComboBoxColumn protocolDataTypeColumn = new DataGridViewComboBoxColumn();
+        DataGridViewTextBoxColumn protocolDataLengthColumn = new DataGridViewTextBoxColumn();
+        DataGridViewTextBoxColumn startingPositionColumn = new DataGridViewTextBoxColumn();
+        DataGridViewTextBoxColumn protocolCountColumn = new DataGridViewTextBoxColumn();
+        DataGridViewTextBoxColumn protocolContentColumn = new DataGridViewTextBoxColumn();
+
         public CommunicationForm()
         {
             InitializeComponent();
@@ -81,13 +92,82 @@ namespace CommunicationApp
 
             //设置数据长度列颜色为灰色
             dgvReceiveData.Columns["ProtocolDataLengthRcv"].DefaultCellStyle.BackColor = Color.LightGray;
-            dgvSendData.Columns["ProtocolDataLength"].DefaultCellStyle.BackColor = Color.LightGray;
             
             //设置Timer的计时时间，绑定事件
             sendTimerByPtc.Interval = 1000;//设置发送间隔为1000ms（1s）
             sendTimerByPtc.Tick += buttonSendByProtocol_Click;//将定时器绑定到按协议发送的方法
             sendTimerByRaw.Interval = 1000;//设置发送间隔为1000ms（1s）
             sendTimerByRaw.Tick += buttonSendByRawData_Click;//将定时器绑定到按原始数据发送的方法
+            
+            //初始化发送协议的DataTable
+            DataColumn[] sendDataColumns = new DataColumn[]{
+            new DataColumn("ProtocolName"),
+            new DataColumn("ProtocolDataType"),
+            new DataColumn("ProtocolDataLength"),
+            new DataColumn("StartingPosition"),
+            new DataColumn("ProtocolCount"),
+            new DataColumn("ProtocolContent")
+            };
+            ptcsToSave.Columns.AddRange(sendDataColumns);//列加入到DataTable中
+            dataSetSend.Tables.Add(ptcsToSave);//DataTable加入到DataSet中
+
+            //将DataSet绑定到发送数据的表格
+            BindingDataTableSend();
+          //  dgvSendData.Columns["ProtocolDataLength"].DefaultCellStyle.BackColor = Color.LightGray;
+        }
+
+        /// <summary>
+        /// 绑定发送数据表格
+        /// </summary>
+        private void BindingDataTableSend()
+        {            
+            //将各列添加到dgvSendData中
+            dgvSendData.Columns.AddRange(new DataGridViewColumn[]{
+                protocolNameColumn,
+                protocolDataTypeColumn,
+                protocolDataLengthColumn,
+                startingPositionColumn,
+                protocolCountColumn,
+                protocolContentColumn
+            });
+
+            dgvSendData.AutoGenerateColumns = false;//设置DataGridView不自动生成列
+            dgvSendData.DataSource = dataSetSend;//绑定DataGridView到DataSet
+            dgvSendData.DataMember = ptcsToSave.TableName;//使DataMember定为ptcsToSave
+
+            //使用DataPropertyName将DataGridView的各列绑定到DataTable中各列
+            protocolNameColumn.DataPropertyName = "ProtocolName";
+            protocolDataTypeColumn.DataPropertyName = "ProtocolDataType";
+            protocolDataLengthColumn.DataPropertyName = "ProtocolDataLength";
+            startingPositionColumn.DataPropertyName = "StartingPosition";
+            protocolCountColumn.DataPropertyName = "ProtocolCount";
+            protocolContentColumn.DataPropertyName = "ProtocolContent";
+            //设置各列HeaderText属性
+            protocolNameColumn.HeaderText = "协议名";
+            protocolDataTypeColumn.HeaderText = "数据类型";
+            protocolDataLengthColumn.HeaderText = "数据长度";
+            startingPositionColumn.HeaderText = "起始位置    ";
+            protocolCountColumn.HeaderText = "个数    ";
+            protocolContentColumn.HeaderText = "数据内容  ";
+            //设置各列Name属性
+            protocolNameColumn.Name = "ProtocolName";
+            protocolDataTypeColumn.Name = "ProtocolDataType";
+            protocolDataLengthColumn.Name = "ProtocolDataLength";
+            startingPositionColumn.Name = "StartingPosition";
+            protocolCountColumn.Name = "ProtocolCount";
+            protocolContentColumn.Name = "ProtocolContent";
+            //填充下拉列表框
+            protocolDataTypeColumn.Items.AddRange("Boolean", "Short", "Ushort", "Int", "Uint", "Long", "Ulong", "Float", "Double", "Char", "String");
+
+            dgvSendData.Columns[2].ReadOnly = true;
+            dgvSendData.Columns[2].DefaultCellStyle.BackColor = Color.LightGray;
+            dgvSendData.AllowUserToResizeColumns = false;//阻止用户手动调整列宽
+            dgvSendData.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            //设置禁止点击列标题进行重排
+            for (int i = 0; i < dgvSendData.Columns.Count; i++)
+            {
+                dgvSendData.Columns[i].SortMode = DataGridViewColumnSortMode.NotSortable;
+            }
         }
 
         /// <summary>
@@ -379,8 +459,13 @@ namespace CommunicationApp
         {
             this.Cursor = Cursors.WaitCursor;
             ProtocolConfigForm myProtocolConfigForm = new ProtocolConfigForm();
+
             //传入需要修改的dgvSendData表格
-            myProtocolConfigForm.ShowDialog(this, dgvSendData);
+            myProtocolConfigForm.ShowDialog(this, dataSetSend);
+            //重新绑定数据列:先清空，再绑定
+            dgvSendData.DataSource = null;
+            dgvSendData.Columns.Clear();
+            BindingDataTableSend();
             this.Cursor = Cursors.Default;
         }
 
@@ -416,7 +501,10 @@ namespace CommunicationApp
         /// <param name="e"></param>
         private void buttonClearSend_Click(object sender, EventArgs e)
         {
+            //清空绑定数据列
+            dgvSendData.DataSource = null;
             dgvSendData.Rows.Clear();
+            dataSetSend.Tables["Protocols"].Rows.Clear();
         }
 
         #region 网络收发数据的代码
@@ -652,23 +740,22 @@ namespace CommunicationApp
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void button1_Click(object sender, EventArgs e)
+        private void buttonSavePtc_Click(object sender, EventArgs e)
         {
-            DataSet ds = new DataSet();
-            
+            //初始化保存对话框
             SaveFileDialog saveDialog = new SaveFileDialog();
-
+            //设置保存对话框的各种属性
             saveDialog.OverwritePrompt = true;
             saveDialog.FileName = "myProtocol";
             saveDialog.DefaultExt = "xml";
             saveDialog.Filter = "xml files (*.xml)|*.xml|All files (*.*)|*.*";
             saveDialog.FilterIndex = 1;
             saveDialog.InitialDirectory = @"D:\";
-
             saveDialog.RestoreDirectory = true;
+
             if (saveDialog.ShowDialog() == DialogResult.OK)
             {
-                
+                dataSetSend.WriteXml(saveDialog.FileName);
             }
             
         }
@@ -680,7 +767,22 @@ namespace CommunicationApp
         /// <param name="e"></param>
         private void buttonLoadPtc_Click(object sender, EventArgs e)
         {
+            //初始化打开对话框，设置各种属性
+            OpenFileDialog loadDialog = new OpenFileDialog();
+            loadDialog.DefaultExt = "xml";
+            loadDialog.Filter = "xml files (*.xml)|*.xml|All files (*.*)|*.*";
+            loadDialog.FilterIndex = 1;
+            loadDialog.InitialDirectory = @"D:\";
+            loadDialog.RestoreDirectory = true;
 
+            if (loadDialog.ShowDialog() == DialogResult.OK)
+            {
+                dataSetSend.ReadXml(loadDialog.FileName);
+                //重新绑定数据列:先清空，再绑定
+                dgvSendData.DataSource = null;
+                dgvSendData.Columns.Clear();
+                BindingDataTableSend();
+            }
         }
 
 
