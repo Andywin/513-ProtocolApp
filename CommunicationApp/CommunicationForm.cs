@@ -752,7 +752,7 @@ namespace CommunicationApp
             saveDialog.FilterIndex = 1;
             saveDialog.InitialDirectory = @"D:\";
             saveDialog.RestoreDirectory = true;
-
+            //保存为XML文件
             if (saveDialog.ShowDialog() == DialogResult.OK)
             {
                 dataSetSend.WriteXml(saveDialog.FileName);
@@ -774,7 +774,7 @@ namespace CommunicationApp
             loadDialog.FilterIndex = 1;
             loadDialog.InitialDirectory = @"D:\";
             loadDialog.RestoreDirectory = true;
-
+            //加载XML文件
             if (loadDialog.ShowDialog() == DialogResult.OK)
             {
                 dataSetSend.ReadXml(loadDialog.FileName);
@@ -784,7 +784,5 @@ namespace CommunicationApp
                 BindingDataTableSend();
             }
         }
-
-
    }
 }
