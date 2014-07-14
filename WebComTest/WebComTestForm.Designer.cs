@@ -39,6 +39,7 @@
             this.textBoxIPtoSend = new System.Windows.Forms.TextBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.textBoxDataRcvd = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -146,11 +147,21 @@
             this.textBoxDataRcvd.Size = new System.Drawing.Size(305, 198);
             this.textBoxDataRcvd.TabIndex = 2;
             // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(20, 292);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(95, 12);
+            this.label4.TabIndex = 5;
+            this.label4.Text = "IslittleEndian:";
+            // 
             // WebComTestForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(623, 409);
+            this.Controls.Add(this.label4);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Name = "WebComTestForm";
@@ -161,6 +172,7 @@
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -177,6 +189,7 @@
         private System.Windows.Forms.TextBox textBoxDataRcvd;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox textBoxPortNum;
+        private System.Windows.Forms.Label label4;
     }
 }
 

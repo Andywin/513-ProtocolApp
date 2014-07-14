@@ -22,6 +22,7 @@ namespace ConvertProvider
         public string Content { get; private set; }//存储为DataType格式的数据内容
         public int DataLength { get; private set; }//单个数据长度
         public byte[] RawData { get; private set; }//单个数据的原始数据
+        public bool IsLittleEndian { get; private set; }//确定数据是否是以LittleEndian形式进行存储的
         //私有变量
         private byte[] bufferData;//全部原始数据内容
         private List<byte> rawDatas = new List<byte>();//此处为协议占用的原始数据内容
@@ -35,12 +36,14 @@ namespace ConvertProvider
         /// <param name="startingPosition">起始位</param>
         /// <param name="count">个数</param>
         /// <param name="contentToSend">要发送的内容</param>
-        public Protocol(string ptcName, string dataTypeString, int startingPosition, int count, string contentToSend)
+        /// <param name="littleEndian">确定数据的存储形式：是否是低字节在前</param>
+        public Protocol(string ptcName, string dataTypeString, int startingPosition, int count, string contentToSend, bool littleEndian)
         {
             this.Name = ptcName;
             this.StartingPosition = startingPosition;
             this.Count = count;
             this.Content = contentToSend;
+            this.IsLittleEndian = littleEndian;
             this.SetDataType(dataTypeString);
             if (this.DataType == DataType.String)
             {
@@ -56,11 +59,13 @@ namespace ConvertProvider
         /// <param name="startingPosition">起始位</param>
         /// <param name="count">个数</param>
         /// <param name="dataLength">字符串数据长度</param>
-        public Protocol(string ptcName, string dataTypeString, int startingPosition, int count, int dataLength)
+        /// <param name="littleEndian">确定数据的存储形式：是否是低字节在前</param>
+        public Protocol(string ptcName, string dataTypeString, int startingPosition, int count, int dataLength, bool littleEndian)
         {
             this.Name = ptcName;
             this.StartingPosition = startingPosition;
             this.Count = count;
+            this.IsLittleEndian = littleEndian;
             this.SetDataType(dataTypeString);
             if (this.DataType == DataType.String)
             {
@@ -171,11 +176,11 @@ namespace ConvertProvider
             //置发送数据标志为false
             this.toSerialFlag = false;
             Content = string.Empty;
-            //分析数据
-            DataAnalysis();
             //从BufferData数组中复制该原始数据到RawData数组
             RawData = new byte[DataLength * Count];
             Array.Copy(bufferData, StartingPosition, RawData, 0, DataLength * Count);
+            //分析数据
+            DataAnalysis();
         }
 
         /// <summary>
@@ -190,6 +195,33 @@ namespace ConvertProvider
             return rawDatas.ToArray();
         }
 
+        /// <summary>
+        /// 对接收协议的LittleEndian属性进行判断，如果与本机属性不一致，则进行转换
+        /// </summary>
+        /// <param name="position">存储单个数据的起始位</param>
+        private void RcvCheckLittleEndian(int position)
+        {
+            if (this.IsLittleEndian != BitConverter.IsLittleEndian)
+            {
+                //对以position开始的DataLength长度的bufferData数据逆序排列
+                Array.Reverse(bufferData, position, DataLength);
+            }
+        }
+
+        /// <summary>
+        /// 对发送协议的LittleEndian属性进行判断，如果与本机属性不一致，则进行转换
+        /// </summary>
+        /// <param name="temp">需要转换的原始数据</param>
+        /// <returns>转换后的数据结果</returns>
+        private byte[] SndCheckLittleEndian(byte[] temp)
+        {
+            if (this.IsLittleEndian != BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(temp);
+            }
+            return temp;
+        }
+
         #region 从串口解析各类数据的实现代码
         /// <summary>
         /// Boolean数据的解析实现
@@ -202,6 +234,7 @@ namespace ConvertProvider
                 int position = StartingPosition;
                 for (int i = 0; i < Count; i++)
                 {
+                    RcvCheckLittleEndian(position);//判断LittleEndian选项与本机是否一致，否则转换
                     BooleanProvider myBoolean = new BooleanProvider(position, DataLength, bufferData);
                     Content += myBoolean.GetData.ToString();
                     Content += " ";
@@ -217,7 +250,8 @@ namespace ConvertProvider
                     for (int i = 0; i < Count; i++)
                     {
                         BooleanProvider myBoolean = new BooleanProvider(splitResult[i]);
-                        rawDatas.AddRange(myBoolean.DataToSend);
+                        //判断LittleEndian选项与本机是否一致，否则转换
+                        rawDatas.AddRange(SndCheckLittleEndian(myBoolean.DataToSend));
                     }
                 }
                 else
@@ -238,6 +272,7 @@ namespace ConvertProvider
                 int position = StartingPosition;
                 for (int i = 0; i < Count; i++)
                 {
+                    RcvCheckLittleEndian(position);//判断LittleEndian与本机是否一致，否则转换
                     ShortProvider myShort = new ShortProvider(position, DataLength, bufferData);
                     Content += myShort.GetData.ToString();
                     Content += " ";
@@ -253,7 +288,8 @@ namespace ConvertProvider
                     for (int i = 0; i < Count; i++)
                     {
                         ShortProvider myShort = new ShortProvider(splitResult[i]);
-                        rawDatas.AddRange(myShort.DataToSend);
+                        //判断LittleEndian选项与本机是否一致，否则转换
+                        rawDatas.AddRange(SndCheckLittleEndian(myShort.DataToSend));
                     }
                 }
                 else
@@ -274,6 +310,7 @@ namespace ConvertProvider
                 int position = StartingPosition;
                 for (int i = 0; i < Count; i++)
                 {
+                    RcvCheckLittleEndian(position);//判断LittleEndian与本机是否一致，否则转换
                     UshortProvider myUshort = new UshortProvider(position, DataLength, bufferData);
                     Content += myUshort.GetData.ToString();
                     Content += " ";
@@ -289,7 +326,8 @@ namespace ConvertProvider
                     for (int i = 0; i < Count; i++)
                     {
                         UshortProvider myUshort = new UshortProvider(splitResult[i]);
-                        rawDatas.AddRange(myUshort.DataToSend);
+                        //判断LittleEndian选项与本机是否一致，否则转换
+                        rawDatas.AddRange(SndCheckLittleEndian(myUshort.DataToSend));
                     }
                 }
                 else
@@ -310,6 +348,7 @@ namespace ConvertProvider
                 int position = StartingPosition;
                 for (int i = 0; i < Count; i++)
                 {
+                    RcvCheckLittleEndian(position);//判断LittleEndian与本机是否一致，否则转换
                     IntProvider myInt = new IntProvider(position, DataLength, bufferData);
                     Content += myInt.GetData.ToString();
                     Content += " ";
@@ -325,7 +364,8 @@ namespace ConvertProvider
                     for (int i = 0; i < Count; i++)
                     {
                         IntProvider myInt = new IntProvider(splitResult[i]);
-                        rawDatas.AddRange(myInt.DataToSend);
+                        //判断LittleEndian选项与本机是否一致，否则转换
+                        rawDatas.AddRange(SndCheckLittleEndian(myInt.DataToSend));
                     }
                 }
                 else
@@ -346,6 +386,7 @@ namespace ConvertProvider
                 int position = StartingPosition;
                 for (int i = 0; i < Count; i++)
                 {
+                    RcvCheckLittleEndian(position);//判断LittleEndian与本机是否一致，否则转换
                     UintProvider myUint = new UintProvider(position, DataLength, bufferData);
                     Content += myUint.GetData.ToString();
                     Content += " ";
@@ -361,7 +402,8 @@ namespace ConvertProvider
                     for (int i = 0; i < Count; i++)
                     {
                         UintProvider myUint = new UintProvider(splitResult[i]);
-                        rawDatas.AddRange(myUint.DataToSend);
+                        //判断LittleEndian选项与本机是否一致，否则转换
+                        rawDatas.AddRange(SndCheckLittleEndian(myUint.DataToSend));
                     }
                 }
                 else
@@ -382,6 +424,7 @@ namespace ConvertProvider
                 int position = StartingPosition;
                 for (int i = 0; i < Count; i++)
                 {
+                    RcvCheckLittleEndian(position);//判断LittleEndian与本机是否一致，否则转换
                     LongProvider myLong = new LongProvider(position, DataLength, bufferData);
                     Content += myLong.GetData.ToString();
                     Content += " ";
@@ -397,7 +440,8 @@ namespace ConvertProvider
                     for (int i = 0; i < Count; i++)
                     {
                         LongProvider myLong = new LongProvider(splitResult[i]);
-                        rawDatas.AddRange(myLong.DataToSend);
+                        //判断LittleEndian选项与本机是否一致，否则转换
+                        rawDatas.AddRange(SndCheckLittleEndian(myLong.DataToSend));
                     }
                 }
                 else
@@ -418,6 +462,7 @@ namespace ConvertProvider
                 int position = StartingPosition;
                 for (int i = 0; i < Count; i++)
                 {
+                    RcvCheckLittleEndian(position);//判断LittleEndian与本机是否一致，否则转换
                     UlongProvider myUlong = new UlongProvider(position, DataLength, bufferData);
                     Content += myUlong.GetData.ToString();
                     Content += " ";
@@ -433,7 +478,8 @@ namespace ConvertProvider
                     for (int i = 0; i < Count; i++)
                     {
                         UlongProvider myUlong = new UlongProvider(splitResult[i]);
-                        rawDatas.AddRange(myUlong.DataToSend);
+                        //判断LittleEndian选项与本机是否一致，否则转换
+                        rawDatas.AddRange(SndCheckLittleEndian(myUlong.DataToSend));
                     }
                 }
                 else
@@ -454,6 +500,7 @@ namespace ConvertProvider
                 int position = StartingPosition;
                 for (int i = 0; i < Count; i++)
                 {
+                    RcvCheckLittleEndian(position);//判断LittleEndian与本机是否一致，否则转换
                     FloatProvider myFloat = new FloatProvider(position, DataLength, bufferData);
                     Content += myFloat.GetData.ToString();
                     Content += " ";
@@ -469,7 +516,8 @@ namespace ConvertProvider
                     for (int i = 0; i < Count; i++)
                     {
                         FloatProvider myFloat = new FloatProvider(splitResult[i]);
-                        rawDatas.AddRange(myFloat.DataToSend);
+                        //判断LittleEndian选项与本机是否一致，否则转换
+                        rawDatas.AddRange(SndCheckLittleEndian(myFloat.DataToSend));
                     }
                 }
                 else
@@ -490,6 +538,7 @@ namespace ConvertProvider
                 int position = StartingPosition;
                 for (int i = 0; i < Count; i++)
                 {
+                    RcvCheckLittleEndian(position);//判断LittleEndian与本机是否一致，否则转换
                     DoubleProvider myDouble = new DoubleProvider(position, DataLength, bufferData);
                     Content += myDouble.GetData.ToString();
                     Content += " ";
@@ -505,7 +554,8 @@ namespace ConvertProvider
                     for (int i = 0; i < Count; i++)
                     {
                         DoubleProvider myDouble = new DoubleProvider(splitResult[i]);
-                        rawDatas.AddRange(myDouble.DataToSend);
+                        //判断LittleEndian选项与本机是否一致，否则转换
+                        rawDatas.AddRange(SndCheckLittleEndian(myDouble.DataToSend));
                     }
                 }
                 else
@@ -526,6 +576,7 @@ namespace ConvertProvider
                 int position = StartingPosition;
                 for (int i = 0; i < Count; i++)
                 {
+                    RcvCheckLittleEndian(position);//判断LittleEndian与本机是否一致，否则转换
                     CharProvider myChar = new CharProvider(position, DataLength, bufferData);
                     Content += myChar.GetData.ToString();
                     Content += " ";
@@ -541,7 +592,8 @@ namespace ConvertProvider
                     for (int i = 0; i < Count; i++)
                     {
                         CharProvider myChar = new CharProvider(splitResult[i]);
-                        rawDatas.AddRange(myChar.DataToSend);
+                        //判断LittleEndian选项与本机是否一致，否则转换
+                        rawDatas.AddRange(SndCheckLittleEndian(myChar.DataToSend));
                     }
                 }
                 else
@@ -563,6 +615,7 @@ namespace ConvertProvider
                 //接收字符串数据时，不论Count是几个，直接全部按照一个接收
                // Count = 1;
               //  DataLength = StringLength;
+                RcvCheckLittleEndian(position);//判断LittleEndian与本机是否一致，否则转换
                 StringProvider myString = new StringProvider(position, DataLength, bufferData);
                 Content = myString.GetData.ToString();
             }
@@ -571,10 +624,13 @@ namespace ConvertProvider
                 StringProvider myString = new StringProvider(Content);
                 //Count = 1;
                 DataLength = myString.DataToSend.Length;
-                rawDatas.AddRange(myString.DataToSend);
+                //判断LittleEndian选项与本机是否一致，否则转换
+                rawDatas.AddRange(SndCheckLittleEndian(myString.DataToSend));
             }
         }
         #endregion
+
+
 
     }
 }

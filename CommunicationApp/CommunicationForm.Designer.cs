@@ -56,6 +56,13 @@
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.buttonClearReceive = new System.Windows.Forms.Button();
             this.dgvReceiveData = new System.Windows.Forms.DataGridView();
+            this.ProtocolNameRcv = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ProtocolDataTypeRcv = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.ProtocolDataLengthRcv = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.StartingPositionRcv = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.CountRcv = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.DataContentRcv = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.RawDataRcv = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.buttonChoosePtcReceive = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.buttonTimingSendByRaw = new System.Windows.Forms.Button();
@@ -68,13 +75,8 @@
             this.label6 = new System.Windows.Forms.Label();
             this.radioButtonTCP = new System.Windows.Forms.RadioButton();
             this.radioButtonUdp = new System.Windows.Forms.RadioButton();
-            this.ProtocolNameRcv = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ProtocolDataTypeRcv = new System.Windows.Forms.DataGridViewComboBoxColumn();
-            this.ProtocolDataLengthRcv = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.StartingPositionRcv = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.CountRcv = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.DataContentRcv = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.RawDataRcv = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.checkBoxLittleEndianSnd = new System.Windows.Forms.CheckBox();
+            this.checkBoxLittleEndianRcv = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.groupBox4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvSendData)).BeginInit();
@@ -189,7 +191,7 @@
             // 
             // buttonSendByRawData
             // 
-            this.buttonSendByRawData.Location = new System.Drawing.Point(483, 278);
+            this.buttonSendByRawData.Location = new System.Drawing.Point(483, 283);
             this.buttonSendByRawData.Name = "buttonSendByRawData";
             this.buttonSendByRawData.Size = new System.Drawing.Size(93, 23);
             this.buttonSendByRawData.TabIndex = 6;
@@ -351,6 +353,7 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.checkBoxLittleEndianRcv);
             this.groupBox2.Controls.Add(this.buttonClearReceive);
             this.groupBox2.Controls.Add(this.dgvReceiveData);
             this.groupBox2.Controls.Add(this.buttonChoosePtcReceive);
@@ -389,6 +392,76 @@
             this.dgvReceiveData.Size = new System.Drawing.Size(569, 205);
             this.dgvReceiveData.TabIndex = 12;
             // 
+            // ProtocolNameRcv
+            // 
+            this.ProtocolNameRcv.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.ProtocolNameRcv.HeaderText = "协议名";
+            this.ProtocolNameRcv.Name = "ProtocolNameRcv";
+            this.ProtocolNameRcv.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.ProtocolNameRcv.Width = 47;
+            // 
+            // ProtocolDataTypeRcv
+            // 
+            this.ProtocolDataTypeRcv.FillWeight = 99.33774F;
+            this.ProtocolDataTypeRcv.HeaderText = "数据类型";
+            this.ProtocolDataTypeRcv.Items.AddRange(new object[] {
+            "Boolean",
+            "Short",
+            "Ushort",
+            "Int",
+            "Uint",
+            "Long",
+            "Ulong",
+            "Float",
+            "Double",
+            "Char",
+            "String"});
+            this.ProtocolDataTypeRcv.MaxDropDownItems = 12;
+            this.ProtocolDataTypeRcv.Name = "ProtocolDataTypeRcv";
+            this.ProtocolDataTypeRcv.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            // 
+            // ProtocolDataLengthRcv
+            // 
+            this.ProtocolDataLengthRcv.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.ProtocolDataLengthRcv.HeaderText = "数据长度";
+            this.ProtocolDataLengthRcv.Name = "ProtocolDataLengthRcv";
+            this.ProtocolDataLengthRcv.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.ProtocolDataLengthRcv.Width = 59;
+            // 
+            // StartingPositionRcv
+            // 
+            this.StartingPositionRcv.FillWeight = 93.8032F;
+            this.StartingPositionRcv.HeaderText = "起始位置";
+            this.StartingPositionRcv.Name = "StartingPositionRcv";
+            this.StartingPositionRcv.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.StartingPositionRcv.Width = 94;
+            // 
+            // CountRcv
+            // 
+            this.CountRcv.FillWeight = 106.859F;
+            this.CountRcv.HeaderText = "个数";
+            this.CountRcv.Name = "CountRcv";
+            this.CountRcv.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.CountRcv.Width = 47;
+            // 
+            // DataContentRcv
+            // 
+            this.DataContentRcv.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.DataContentRcv.HeaderText = "数据内容";
+            this.DataContentRcv.Name = "DataContentRcv";
+            this.DataContentRcv.ReadOnly = true;
+            this.DataContentRcv.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.DataContentRcv.Width = 59;
+            // 
+            // RawDataRcv
+            // 
+            this.RawDataRcv.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.RawDataRcv.HeaderText = "原始数据";
+            this.RawDataRcv.Name = "RawDataRcv";
+            this.RawDataRcv.ReadOnly = true;
+            this.RawDataRcv.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.RawDataRcv.Width = 59;
+            // 
             // buttonChoosePtcReceive
             // 
             this.buttonChoosePtcReceive.Location = new System.Drawing.Point(500, 225);
@@ -401,6 +474,7 @@
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.checkBoxLittleEndianSnd);
             this.tabPage2.Controls.Add(this.buttonTimingSendByRaw);
             this.tabPage2.Controls.Add(this.label5);
             this.tabPage2.Controls.Add(this.buttonSendByRawData);
@@ -416,7 +490,7 @@
             // 
             // buttonTimingSendByRaw
             // 
-            this.buttonTimingSendByRaw.Location = new System.Drawing.Point(483, 305);
+            this.buttonTimingSendByRaw.Location = new System.Drawing.Point(483, 308);
             this.buttonTimingSendByRaw.Name = "buttonTimingSendByRaw";
             this.buttonTimingSendByRaw.Size = new System.Drawing.Size(93, 23);
             this.buttonTimingSendByRaw.TabIndex = 15;
@@ -513,75 +587,29 @@
             this.radioButtonUdp.Text = "UDP协议";
             this.radioButtonUdp.UseVisualStyleBackColor = true;
             // 
-            // ProtocolNameRcv
+            // checkBoxLittleEndianSnd
             // 
-            this.ProtocolNameRcv.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.ProtocolNameRcv.HeaderText = "协议名";
-            this.ProtocolNameRcv.Name = "ProtocolNameRcv";
-            this.ProtocolNameRcv.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.ProtocolNameRcv.Width = 47;
+            this.checkBoxLittleEndianSnd.AutoSize = true;
+            this.checkBoxLittleEndianSnd.Checked = true;
+            this.checkBoxLittleEndianSnd.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBoxLittleEndianSnd.Location = new System.Drawing.Point(483, 265);
+            this.checkBoxLittleEndianSnd.Name = "checkBoxLittleEndianSnd";
+            this.checkBoxLittleEndianSnd.Size = new System.Drawing.Size(84, 16);
+            this.checkBoxLittleEndianSnd.TabIndex = 16;
+            this.checkBoxLittleEndianSnd.Text = "低字节在前";
+            this.checkBoxLittleEndianSnd.UseVisualStyleBackColor = true;
             // 
-            // ProtocolDataTypeRcv
+            // checkBoxLittleEndianRcv
             // 
-            this.ProtocolDataTypeRcv.FillWeight = 99.33774F;
-            this.ProtocolDataTypeRcv.HeaderText = "数据类型";
-            this.ProtocolDataTypeRcv.Items.AddRange(new object[] {
-            "Boolean",
-            "Short",
-            "Ushort",
-            "Int",
-            "Uint",
-            "Long",
-            "Ulong",
-            "Float",
-            "Double",
-            "Char",
-            "String"});
-            this.ProtocolDataTypeRcv.MaxDropDownItems = 12;
-            this.ProtocolDataTypeRcv.Name = "ProtocolDataTypeRcv";
-            this.ProtocolDataTypeRcv.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            // 
-            // ProtocolDataLengthRcv
-            // 
-            this.ProtocolDataLengthRcv.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.ProtocolDataLengthRcv.HeaderText = "数据长度";
-            this.ProtocolDataLengthRcv.Name = "ProtocolDataLengthRcv";
-            this.ProtocolDataLengthRcv.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.ProtocolDataLengthRcv.Width = 59;
-            // 
-            // StartingPositionRcv
-            // 
-            this.StartingPositionRcv.FillWeight = 93.8032F;
-            this.StartingPositionRcv.HeaderText = "起始位置";
-            this.StartingPositionRcv.Name = "StartingPositionRcv";
-            this.StartingPositionRcv.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.StartingPositionRcv.Width = 94;
-            // 
-            // CountRcv
-            // 
-            this.CountRcv.FillWeight = 106.859F;
-            this.CountRcv.HeaderText = "个数";
-            this.CountRcv.Name = "CountRcv";
-            this.CountRcv.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.CountRcv.Width = 47;
-            // 
-            // DataContentRcv
-            // 
-            this.DataContentRcv.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.DataContentRcv.HeaderText = "数据内容";
-            this.DataContentRcv.Name = "DataContentRcv";
-            this.DataContentRcv.ReadOnly = true;
-            this.DataContentRcv.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.DataContentRcv.Width = 59;
-            // 
-            // RawDataRcv
-            // 
-            this.RawDataRcv.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.RawDataRcv.HeaderText = "原始数据";
-            this.RawDataRcv.Name = "RawDataRcv";
-            this.RawDataRcv.ReadOnly = true;
-            this.RawDataRcv.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.RawDataRcv.Width = 59;
+            this.checkBoxLittleEndianRcv.AutoSize = true;
+            this.checkBoxLittleEndianRcv.Checked = true;
+            this.checkBoxLittleEndianRcv.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBoxLittleEndianRcv.Location = new System.Drawing.Point(330, 229);
+            this.checkBoxLittleEndianRcv.Name = "checkBoxLittleEndianRcv";
+            this.checkBoxLittleEndianRcv.Size = new System.Drawing.Size(84, 16);
+            this.checkBoxLittleEndianRcv.TabIndex = 14;
+            this.checkBoxLittleEndianRcv.Text = "低字节在前";
+            this.checkBoxLittleEndianRcv.UseVisualStyleBackColor = true;
             // 
             // CommunicationForm
             // 
@@ -608,6 +636,7 @@
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvReceiveData)).EndInit();
             this.tabPage2.ResumeLayout(false);
             this.tabPage2.PerformLayout();
@@ -667,6 +696,8 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn CountRcv;
         private System.Windows.Forms.DataGridViewTextBoxColumn DataContentRcv;
         private System.Windows.Forms.DataGridViewTextBoxColumn RawDataRcv;
+        private System.Windows.Forms.CheckBox checkBoxLittleEndianRcv;
+        private System.Windows.Forms.CheckBox checkBoxLittleEndianSnd;
     }
 }
 

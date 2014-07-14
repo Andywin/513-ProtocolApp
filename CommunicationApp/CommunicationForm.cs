@@ -146,9 +146,9 @@ namespace CommunicationApp
             protocolNameColumn.HeaderText = "协议名";
             protocolDataTypeColumn.HeaderText = "数据类型";
             protocolDataLengthColumn.HeaderText = "数据长度";
-            startingPositionColumn.HeaderText = "起始位置    ";
-            protocolCountColumn.HeaderText = "个数    ";
-            protocolContentColumn.HeaderText = "数据内容  ";
+            startingPositionColumn.HeaderText = "起始位置";
+            protocolCountColumn.HeaderText = "个数";
+            protocolContentColumn.HeaderText = "数据内容";
             //设置各列Name属性
             protocolNameColumn.Name = "ProtocolName";
             protocolDataTypeColumn.Name = "ProtocolDataType";
@@ -156,13 +156,19 @@ namespace CommunicationApp
             startingPositionColumn.Name = "StartingPosition";
             protocolCountColumn.Name = "ProtocolCount";
             protocolContentColumn.Name = "DataContent";
+            //设置各列自动列宽属性
+            protocolNameColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+            protocolDataLengthColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+            startingPositionColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+            protocolCountColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+            protocolContentColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
             //填充下拉列表框
             protocolDataTypeColumn.Items.AddRange("Boolean", "Short", "Ushort", "Int", "Uint", "Long", "Ulong", "Float", "Double", "Char", "String");
 
             dgvSendData.Columns[2].ReadOnly = true;
             dgvSendData.Columns[2].DefaultCellStyle.BackColor = Color.LightGray;
             dgvSendData.AllowUserToResizeColumns = false;//阻止用户手动调整列宽
-            dgvSendData.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            //dgvSendData.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             //设置禁止点击列标题进行重排
             for (int i = 0; i < dgvSendData.Columns.Count; i++)
             {
@@ -313,7 +319,8 @@ namespace CommunicationApp
                     }
                     string contentToSend = dgvSendData.Rows[i].Cells["DataContent"].Value.ToString();
                     //初始化发送协议
-                    Protocol sendProtocol = new Protocol(ptcName, dataTypeString, startingPosition, count, contentToSend);
+                    bool littleEndian = checkBoxLittleEndianSnd.Checked;
+                    Protocol sendProtocol = new Protocol(ptcName, dataTypeString, startingPosition, count, contentToSend, littleEndian);
                     //将该行协议存入myProtocols的List中
                     sendProtocols.Add(sendProtocol);
                 }
@@ -426,7 +433,8 @@ namespace CommunicationApp
                 int count = Convert.ToInt32(dgvReceiveData.Rows[i].Cells["CountRcv"].Value);
                 int dataLength = Convert.ToInt32(dgvReceiveData.Rows[i].Cells["ProtocolDataLengthRcv"].Value);
                 //初始化接收协议
-                Protocol rcvProtocol = new Protocol(ptcName, dataTypeString, startingPosition, count, dataLength);
+                bool littleEndian = checkBoxLittleEndianRcv.Checked;
+                Protocol rcvProtocol = new Protocol(ptcName, dataTypeString, startingPosition, count, dataLength, littleEndian);
                 //将该行协议存入myProtocols的List中
                 receiveProtocols.Add(rcvProtocol);
             }

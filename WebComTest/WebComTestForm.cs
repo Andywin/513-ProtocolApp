@@ -76,6 +76,8 @@ namespace WebComTest
         {
             //将方法赋予委托的实例
             changeTextDlgt = ChangeReceiveText;
+
+            label4.Text = "IsLittleEndian:" + BitConverter.IsLittleEndian.ToString();
         }
 
         /// <summary>
