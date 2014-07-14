@@ -106,7 +106,7 @@ namespace CommunicationApp
             new DataColumn("ProtocolDataLength"),
             new DataColumn("StartingPosition"),
             new DataColumn("ProtocolCount"),
-            new DataColumn("ProtocolContent")
+            new DataColumn("DataContent")
             };
             ptcsToSave.Columns.AddRange(sendDataColumns);//列加入到DataTable中
             dataSetSend.Tables.Add(ptcsToSave);//DataTable加入到DataSet中
@@ -141,7 +141,7 @@ namespace CommunicationApp
             protocolDataLengthColumn.DataPropertyName = "ProtocolDataLength";
             startingPositionColumn.DataPropertyName = "StartingPosition";
             protocolCountColumn.DataPropertyName = "ProtocolCount";
-            protocolContentColumn.DataPropertyName = "ProtocolContent";
+            protocolContentColumn.DataPropertyName = "DataContent";
             //设置各列HeaderText属性
             protocolNameColumn.HeaderText = "协议名";
             protocolDataTypeColumn.HeaderText = "数据类型";
@@ -155,7 +155,7 @@ namespace CommunicationApp
             protocolDataLengthColumn.Name = "ProtocolDataLength";
             startingPositionColumn.Name = "StartingPosition";
             protocolCountColumn.Name = "ProtocolCount";
-            protocolContentColumn.Name = "ProtocolContent";
+            protocolContentColumn.Name = "DataContent";
             //填充下拉列表框
             protocolDataTypeColumn.Items.AddRange("Boolean", "Short", "Ushort", "Int", "Uint", "Long", "Ulong", "Float", "Double", "Char", "String");
 
@@ -292,7 +292,7 @@ namespace CommunicationApp
             if (dgvSendData.Rows.Count == 1)
                 return;
 
-            try
+            //try
             {
                 //定义一个变量，记录发送了几个字节
                 int sendCount = 0;
@@ -364,10 +364,10 @@ namespace CommunicationApp
                 toolStripStatusDataSent.Text = "已发送字节数：" + sentCount.ToString();//更新界面
 
             }
-            catch (Exception innerException)
-            {
-                MessageBox.Show(innerException.Message, "警告!");
-            }
+            //catch (Exception innerException)
+            //{
+            //     MessageBox.Show(innerException.Message, "警告!");
+            //}
         }
 
         /// <summary>
