@@ -515,6 +515,33 @@ namespace CommunicationApp
             dataSetSend.Tables["Protocols"].Rows.Clear();
         }
 
+        /// <summary>
+        /// 接收数据并进行处理的方法
+        /// </summary>
+        /// <param name="buf"></param>
+        private void ReceiveDataMethod(byte[] buf)
+        {
+            receivedCount += buf.Length;//增加接收计数
+            //对读取的数据进行分析
+            this.AnalyseProtocolFromSerial(buf);
+            //清除字符串构造器的内容
+            myStringBuilder.Clear();
+            //因为要访问ui资源，所以需要使用invoke方式同步ui。
+            this.Invoke((EventHandler)(delegate
+            {
+                //依次的拼接出16进制字符串
+                foreach (byte b in buf)
+                {
+                    myStringBuilder.Append(b.ToString("X2") + " ");
+                }
+                //追加的形式添加到文本框末端，并滚动到最后。
+                this.txGet.AppendText(myStringBuilder.ToString());
+                this.txGet.AppendText("\n");
+                //修改接收计数
+                toolStripStatusDataRcv.Text = "已接收字节数：" + receivedCount.ToString();//更新界面
+            }));
+        }
+
         #region 网络收发数据的代码
         /// <summary>
         /// 点击开启网络发送按钮
@@ -666,33 +693,7 @@ namespace CommunicationApp
         } 
         #endregion
 
-        /// <summary>
-        /// 接收数据并进行处理的方法
-        /// </summary>
-        /// <param name="buf"></param>
-        private void ReceiveDataMethod(byte[] buf)
-        {
-            receivedCount += buf.Length;//增加接收计数
-            //对读取的数据进行分析
-            this.AnalyseProtocolFromSerial(buf);
-            //清除字符串构造器的内容
-            myStringBuilder.Clear();
-            //因为要访问ui资源，所以需要使用invoke方式同步ui。
-            this.Invoke((EventHandler)(delegate
-            {
-                //依次的拼接出16进制字符串
-                foreach (byte b in buf)
-                {
-                    myStringBuilder.Append(b.ToString("X2") + " ");
-                }
-                //追加的形式添加到文本框末端，并滚动到最后。
-                this.txGet.AppendText(myStringBuilder.ToString());
-                this.txGet.AppendText("\n");
-                //修改接收计数
-                toolStripStatusDataRcv.Text = "已接收字节数：" + receivedCount.ToString();//更新界面
-            }));
-        }
-
+        #region 定时发送
         /// <summary>
         /// 点击按协议发送框中的定时发送按钮
         /// </summary>
@@ -741,8 +742,10 @@ namespace CommunicationApp
                 buttonTimingSendByRaw.Text = "开启定时发送";
                 sendTimerByRaw.Stop();
             }
-        }
+        } 
+        #endregion
 
+        #region 保存加载协议
         /// <summary>
         /// 单击保存协议按钮，对表格中的协议进行保存
         /// </summary>
@@ -765,7 +768,7 @@ namespace CommunicationApp
             {
                 dataSetSend.WriteXml(saveDialog.FileName);
             }
-            
+
         }
 
         /// <summary>
@@ -791,6 +794,8 @@ namespace CommunicationApp
                 dgvSendData.Columns.Clear();
                 BindingDataTableSend();
             }
-        }
+        } 
+        #endregion
+
    }
 }
