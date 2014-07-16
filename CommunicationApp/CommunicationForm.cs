@@ -34,7 +34,7 @@ namespace CommunicationApp
         private UdpClient udpClientRcv;
         //声明发送用TcpClient
         private TcpClient tcpClientSendfromClient = new TcpClient();
-        private TcpClient tcpClientSendfromServer;
+        private TcpClient tcpClientSendfromServer = new TcpClient();
         //声明接收用TcpListener
         private TcpListener tcpListenerRcv;
         //声明客户端接收服务器用的TcpClient
@@ -49,6 +49,10 @@ namespace CommunicationApp
         int localPort;
         IPAddress remoteIpAddress;
         int remotePort;
+        //初始化存储连接到Server的客户端TcpClient列表，以EndPoint为索引
+        Dictionary<IPEndPoint, TcpClient> clientsDict = new Dictionary<IPEndPoint, TcpClient>();
+        IPEndPoint epFromForm;
+
         //定义定时发送的Timer
         System.Windows.Forms.Timer sendTimerByPtc = new System.Windows.Forms.Timer();
         System.Windows.Forms.Timer sendTimerByRaw = new System.Windows.Forms.Timer();
@@ -89,10 +93,11 @@ namespace CommunicationApp
             comboBaudrate.SelectedIndex = comboBaudrate.Items.IndexOf("4800");
 
             //初始化网络通信textBox默认值
-            textBoxLocalIp.Text = "127.0.0.1";
-            textBoxLocalPort.Text = "12700";
             textBoxRemoteIP.Text = "127.0.0.1";
             textBoxRemotePort.Text = "26400";
+            localIpAddress = Dns.GetHostAddresses(Dns.GetHostName())[1];//因为启用了IPV6，所以用[1]
+            textBoxLocalIp.Text = localIpAddress.ToString();
+            textBoxLocalPort.Text = "12700";
 
             //初始化SerialPort对象
             comm.NewLine = "\r\n"; //表示行尾的值。 默认值为换行符 (NewLine)
@@ -694,12 +699,10 @@ namespace CommunicationApp
             //定义TcpListener,开启侦听网络端口
             tcpListenerRcv = new TcpListener(IPAddress.Any, localPort);
             tcpListenerRcv.Start();
-            while (true)
-            {
-                Thread tcpServerTrd = new Thread(new ThreadStart(tcpServerListing));
-                tcpServerTrd.IsBackground = true;
-                tcpServerTrd.Start();
-            }
+            //开启TCP服务器监听并接收信息的线程
+            Thread tcpServerTrd = new Thread(new ThreadStart(tcpServerListing));
+            tcpServerTrd.IsBackground = true;
+            tcpServerTrd.Start();
         }
 
         /// <summary>
@@ -707,22 +710,39 @@ namespace CommunicationApp
         /// </summary>
         private void tcpServerListing()
         {
-            byte[] buf;
-            if (tcpListenerRcv.Pending())
+            while (true)
             {
-                //开启阻塞式接收TCP连接，接收到一个TcpClient对象
-                TcpClient tcpTempClient = tcpListenerRcv.AcceptTcpClient();
-                //获得用于读写的NetworkStream对象
-                NetworkStream netStream = tcpTempClient.GetStream();
-                ////获得远程的IPEndPoint信息
-                //IPEndPoint tempEP = (IPEndPoint)tcpTempClient.Client.RemoteEndPoint;
-                buf = new byte[tcpTempClient.ReceiveBufferSize];
-                int bytesRcvd = netStream.Read(buf, 0, tcpTempClient.ReceiveBufferSize);
-                netStream.Close();
-                tcpTempClient.Close();
-                //调用数据处理的事件委托，对读取的数据进行分析并显示
-                invokeDataRcvEvent(buf.Take(bytesRcvd).ToArray());
+                if (tcpListenerRcv.Pending())
+                {
+                    //开启阻塞式接收TCP连接，接收到一个TcpClient对象
+                    TcpClient tcpTempClient = tcpListenerRcv.AcceptTcpClient();
+                    epFromForm = tcpTempClient.Client.RemoteEndPoint as IPEndPoint;
+                    clientsDict.Add(epFromForm, tcpTempClient);
+                    this.Invoke((EventHandler)delegate
+                    {
+                        //将界面的远程IP和端口设为连接到的远程客户端
+                        textBoxRemoteIP.Text = epFromForm.Address.ToString();
+                        textBoxRemotePort.Text = epFromForm.Port.ToString();
+                    });
+                    //获得用于读写的NetworkStream对象
+                    NetworkStream netStream = tcpTempClient.GetStream();
+                    byte[] serverBufData = new byte[2048];
+                    int bytesRcvd = netStream.Read(serverBufData, 0, 2048);
+                    //netStream.Close();
+                    //tcpTempClient.Close();
+                    //调用数据处理的事件委托，对读取的数据进行分析并显示
+                    invokeDataRcvEvent(serverBufData.Take(bytesRcvd).ToArray());
+                }
+                else if (clientsDict.Count != 0)
+                {
+                    NetworkStream serverNetStream = clientsDict[epFromForm].GetStream();
+                    byte[] serverBufData = new byte[2048];
+                    int bytesRcvd = serverNetStream.Read(serverBufData, 0, 2048);
+                    //调用数据处理的事件委托，对读取的数据进行分析并显示
+                    invokeDataRcvEvent(serverBufData.Take(bytesRcvd).ToArray());
+                } 
             }
+
         }
 
         /// <summary>
@@ -758,16 +778,13 @@ namespace CommunicationApp
             }
             else if (radioButtonTCPServer.Checked)//选中TCP/IP服务器
             {
-                //初始化发送用tcpClientSend
-                tcpClientSendfromServer = new TcpClient();
-                //连接到相应端口，向指定IP地址发送数据
-                tcpClientSendfromServer.Connect(remoteIpAddress, remotePort);
+                //初始化发送用tempClient
+                epFromForm = new IPEndPoint(IPAddress.Parse(textBoxRemoteIP.Text), Int32.Parse(textBoxRemotePort.Text));
+                TcpClient tempClient = clientsDict[epFromForm];
                 //获得用于发送的NetworkStream对象
-                NetworkStream netStream = tcpClientSendfromServer.GetStream();
+                NetworkStream netStream = tempClient.GetStream();
                 //发送数据
                 netStream.Write(buf.ToArray(), 0, buf.Count);
-                netStream.Close();
-                tcpClientSendfromServer.Close();//关闭tcpClient
             }
             else if (radioButtonTCPClient.Checked)//选中TCP/IP客户端
             {
@@ -776,6 +793,44 @@ namespace CommunicationApp
                 netStream.Write(buf.ToArray(), 0, buf.Count);
             }
         }
+
+        /// <summary>
+        /// 接收异常，复位按钮状态
+        /// </summary>
+        private void ResetButton()
+        {
+            isByNet = false;
+            this.Invoke((EventHandler)(delegate
+            {
+                buttonByNet.Text = "开启网络收发";
+                buttonBySerialPort.Enabled = true;
+            }));
+            //终止接收网络数据线程
+            threadNet.Abort();
+            if (threadTcpServer != null)
+            {
+                threadTcpServer.Abort();
+            }
+            if (threadTcpClient != null)
+            {
+                threadTcpClient.Abort();
+            }
+            if (udpClientRcv != null)
+            {
+                //关闭udp协议监听端口
+                udpClientRcv.Close();
+            }
+            if (tcpClientRcv != null)
+            {
+                tcpClientRcv.Close();
+            }
+            if (tcpListenerRcv != null)
+            {
+                //关闭TCP服务器监听端口
+                tcpListenerRcv.Stop();
+            }
+        }
+
         #endregion
 
         #region 定时发送
@@ -828,44 +883,6 @@ namespace CommunicationApp
                 sendTimerByRaw.Stop();
             }
         }
-
-        /// <summary>
-        /// 接收异常，复位按钮状态
-        /// </summary>
-        private void ResetButton()
-        {
-            isByNet = false;
-            this.Invoke((EventHandler)(delegate
-            {
-                buttonByNet.Text = "开启网络收发";
-                buttonBySerialPort.Enabled = true;
-            }));
-            //终止接收网络数据线程
-            threadNet.Abort();
-            if (threadTcpServer != null)
-            {
-                threadTcpServer.Abort();
-            }
-            if (threadTcpClient != null)
-            {
-                threadTcpClient.Abort();
-            }
-            if (udpClientRcv != null)
-            {
-                //关闭udp协议监听端口
-                udpClientRcv.Close();
-            }
-            if (tcpClientRcv != null)
-            {
-                tcpClientRcv.Close();
-            }
-            if (tcpListenerRcv != null)
-            {
-                //关闭TCP服务器监听端口
-                tcpListenerRcv.Stop();
-            }
-        }
-
         #endregion
 
         #region 保存加载协议

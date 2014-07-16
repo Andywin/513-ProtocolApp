@@ -60,4 +60,22 @@ namespace ConvertProvider
         {
         }
     }
+
+    /// <summary>
+    /// 服务器无法连接异常
+    /// </summary>
+    public class ServerNotAvaliableException : Exception
+    {
+        public ServerNotAvaliableException()
+        {
+        }
+        public ServerNotAvaliableException(string message)
+            : base(message)
+        {
+        }
+        public ServerNotAvaliableException(string message, Exception inner)
+            : base(message, inner)
+        {
+        }
+    }
 }
