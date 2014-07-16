@@ -33,8 +33,8 @@
             this.label2 = new System.Windows.Forms.Label();
             this.comboBaudrate = new System.Windows.Forms.ComboBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.buttonBySerialPort = new System.Windows.Forms.Button();
             this.buttonReset = new System.Windows.Forms.Button();
+            this.buttonBySerialPort = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.txGet = new System.Windows.Forms.TextBox();
             this.buttonSendByRawData = new System.Windows.Forms.Button();
@@ -70,15 +70,19 @@
             this.buttonTimingSendByRaw = new System.Windows.Forms.Button();
             this.label5 = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.textBoxRemotePort = new System.Windows.Forms.TextBox();
+            this.label9 = new System.Windows.Forms.Label();
+            this.textBoxRemoteIP = new System.Windows.Forms.TextBox();
+            this.label8 = new System.Windows.Forms.Label();
+            this.radioButtonUdpBroadcast = new System.Windows.Forms.RadioButton();
+            this.radioButtonTCPClient = new System.Windows.Forms.RadioButton();
             this.buttonByNet = new System.Windows.Forms.Button();
-            this.textBoxPortNum = new System.Windows.Forms.TextBox();
+            this.textBoxLocalPort = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
-            this.textBoxIpAddress = new System.Windows.Forms.TextBox();
+            this.textBoxLocalIp = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
             this.radioButtonTCPServer = new System.Windows.Forms.RadioButton();
             this.radioButtonUdpAssigned = new System.Windows.Forms.RadioButton();
-            this.radioButtonTCPClient = new System.Windows.Forms.RadioButton();
-            this.radioButtonUdpBroadcast = new System.Windows.Forms.RadioButton();
             this.groupBox1.SuspendLayout();
             this.groupBox4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvSendData)).BeginInit();
@@ -143,6 +147,7 @@
             this.groupBox1.Controls.Add(this.comboPortName);
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.comboBaudrate);
+            this.groupBox1.Controls.Add(this.buttonReset);
             this.groupBox1.Controls.Add(this.buttonBySerialPort);
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Location = new System.Drawing.Point(622, 12);
@@ -152,25 +157,25 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "串口通信";
             // 
-            // buttonBySerialPort
-            // 
-            this.buttonBySerialPort.Location = new System.Drawing.Point(84, 91);
-            this.buttonBySerialPort.Name = "buttonBySerialPort";
-            this.buttonBySerialPort.Size = new System.Drawing.Size(109, 23);
-            this.buttonBySerialPort.TabIndex = 5;
-            this.buttonBySerialPort.Text = "开启串口收发";
-            this.buttonBySerialPort.UseVisualStyleBackColor = true;
-            this.buttonBySerialPort.Click += new System.EventHandler(this.buttonBySerialPort_Click);
-            // 
             // buttonReset
             // 
-            this.buttonReset.Location = new System.Drawing.Point(740, 348);
+            this.buttonReset.Location = new System.Drawing.Point(13, 91);
             this.buttonReset.Name = "buttonReset";
             this.buttonReset.Size = new System.Drawing.Size(75, 23);
             this.buttonReset.TabIndex = 6;
             this.buttonReset.Text = "复位";
             this.buttonReset.UseVisualStyleBackColor = true;
             this.buttonReset.Click += new System.EventHandler(this.buttonReset_Click);
+            // 
+            // buttonBySerialPort
+            // 
+            this.buttonBySerialPort.Location = new System.Drawing.Point(102, 91);
+            this.buttonBySerialPort.Name = "buttonBySerialPort";
+            this.buttonBySerialPort.Size = new System.Drawing.Size(91, 23);
+            this.buttonBySerialPort.TabIndex = 5;
+            this.buttonBySerialPort.Text = "开启串口收发";
+            this.buttonBySerialPort.UseVisualStyleBackColor = true;
+            this.buttonBySerialPort.Click += new System.EventHandler(this.buttonBySerialPort_Click);
             // 
             // label3
             // 
@@ -535,25 +540,83 @@
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.textBoxRemotePort);
+            this.groupBox3.Controls.Add(this.label9);
+            this.groupBox3.Controls.Add(this.textBoxRemoteIP);
+            this.groupBox3.Controls.Add(this.label8);
             this.groupBox3.Controls.Add(this.radioButtonUdpBroadcast);
             this.groupBox3.Controls.Add(this.radioButtonTCPClient);
             this.groupBox3.Controls.Add(this.buttonByNet);
-            this.groupBox3.Controls.Add(this.textBoxPortNum);
+            this.groupBox3.Controls.Add(this.textBoxLocalPort);
             this.groupBox3.Controls.Add(this.label7);
-            this.groupBox3.Controls.Add(this.textBoxIpAddress);
+            this.groupBox3.Controls.Add(this.textBoxLocalIp);
             this.groupBox3.Controls.Add(this.label6);
             this.groupBox3.Controls.Add(this.radioButtonTCPServer);
             this.groupBox3.Controls.Add(this.radioButtonUdpAssigned);
-            this.groupBox3.Location = new System.Drawing.Point(623, 175);
+            this.groupBox3.Location = new System.Drawing.Point(623, 141);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(211, 160);
+            this.groupBox3.Size = new System.Drawing.Size(211, 230);
             this.groupBox3.TabIndex = 12;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "网络通信";
             // 
+            // textBoxRemotePort
+            // 
+            this.textBoxRemotePort.Location = new System.Drawing.Point(71, 156);
+            this.textBoxRemotePort.Name = "textBoxRemotePort";
+            this.textBoxRemotePort.Size = new System.Drawing.Size(62, 21);
+            this.textBoxRemotePort.TabIndex = 12;
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(10, 159);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(53, 12);
+            this.label9.TabIndex = 11;
+            this.label9.Text = "远程端口";
+            // 
+            // textBoxRemoteIP
+            // 
+            this.textBoxRemoteIP.Location = new System.Drawing.Point(71, 125);
+            this.textBoxRemoteIP.Name = "textBoxRemoteIP";
+            this.textBoxRemoteIP.Size = new System.Drawing.Size(127, 21);
+            this.textBoxRemoteIP.TabIndex = 10;
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(10, 128);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(41, 12);
+            this.label8.TabIndex = 9;
+            this.label8.Text = "远程IP";
+            // 
+            // radioButtonUdpBroadcast
+            // 
+            this.radioButtonUdpBroadcast.AutoSize = true;
+            this.radioButtonUdpBroadcast.Location = new System.Drawing.Point(12, 40);
+            this.radioButtonUdpBroadcast.Name = "radioButtonUdpBroadcast";
+            this.radioButtonUdpBroadcast.Size = new System.Drawing.Size(65, 16);
+            this.radioButtonUdpBroadcast.TabIndex = 8;
+            this.radioButtonUdpBroadcast.TabStop = true;
+            this.radioButtonUdpBroadcast.Text = "UDP组播";
+            this.radioButtonUdpBroadcast.UseVisualStyleBackColor = true;
+            // 
+            // radioButtonTCPClient
+            // 
+            this.radioButtonTCPClient.AutoSize = true;
+            this.radioButtonTCPClient.Location = new System.Drawing.Point(109, 41);
+            this.radioButtonTCPClient.Name = "radioButtonTCPClient";
+            this.radioButtonTCPClient.Size = new System.Drawing.Size(77, 16);
+            this.radioButtonTCPClient.TabIndex = 7;
+            this.radioButtonTCPClient.TabStop = true;
+            this.radioButtonTCPClient.Text = "TCP客户端";
+            this.radioButtonTCPClient.UseVisualStyleBackColor = true;
+            // 
             // buttonByNet
             // 
-            this.buttonByNet.Location = new System.Drawing.Point(83, 127);
+            this.buttonByNet.Location = new System.Drawing.Point(89, 189);
             this.buttonByNet.Name = "buttonByNet";
             this.buttonByNet.Size = new System.Drawing.Size(109, 23);
             this.buttonByNet.TabIndex = 6;
@@ -561,37 +624,37 @@
             this.buttonByNet.UseVisualStyleBackColor = true;
             this.buttonByNet.Click += new System.EventHandler(this.buttonByNet_Click);
             // 
-            // textBoxPortNum
+            // textBoxLocalPort
             // 
-            this.textBoxPortNum.Location = new System.Drawing.Point(59, 99);
-            this.textBoxPortNum.Name = "textBoxPortNum";
-            this.textBoxPortNum.Size = new System.Drawing.Size(62, 21);
-            this.textBoxPortNum.TabIndex = 5;
+            this.textBoxLocalPort.Location = new System.Drawing.Point(71, 94);
+            this.textBoxLocalPort.Name = "textBoxLocalPort";
+            this.textBoxLocalPort.Size = new System.Drawing.Size(62, 21);
+            this.textBoxLocalPort.TabIndex = 5;
             // 
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(12, 102);
+            this.label7.Location = new System.Drawing.Point(10, 97);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(41, 12);
+            this.label7.Size = new System.Drawing.Size(53, 12);
             this.label7.TabIndex = 4;
-            this.label7.Text = "端口号";
+            this.label7.Text = "本机端口";
             // 
-            // textBoxIpAddress
+            // textBoxLocalIp
             // 
-            this.textBoxIpAddress.Location = new System.Drawing.Point(59, 63);
-            this.textBoxIpAddress.Name = "textBoxIpAddress";
-            this.textBoxIpAddress.Size = new System.Drawing.Size(133, 21);
-            this.textBoxIpAddress.TabIndex = 3;
+            this.textBoxLocalIp.Location = new System.Drawing.Point(71, 63);
+            this.textBoxLocalIp.Name = "textBoxLocalIp";
+            this.textBoxLocalIp.Size = new System.Drawing.Size(127, 21);
+            this.textBoxLocalIp.TabIndex = 3;
             // 
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(12, 66);
+            this.label6.Location = new System.Drawing.Point(10, 66);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(41, 12);
             this.label6.TabIndex = 2;
-            this.label6.Text = "IP地址";
+            this.label6.Text = "本机IP";
             // 
             // radioButtonTCPServer
             // 
@@ -615,28 +678,6 @@
             this.radioButtonUdpAssigned.Text = "UDP指定地址";
             this.radioButtonUdpAssigned.UseVisualStyleBackColor = true;
             // 
-            // radioButtonTCPClient
-            // 
-            this.radioButtonTCPClient.AutoSize = true;
-            this.radioButtonTCPClient.Location = new System.Drawing.Point(109, 41);
-            this.radioButtonTCPClient.Name = "radioButtonTCPClient";
-            this.radioButtonTCPClient.Size = new System.Drawing.Size(77, 16);
-            this.radioButtonTCPClient.TabIndex = 7;
-            this.radioButtonTCPClient.TabStop = true;
-            this.radioButtonTCPClient.Text = "TCP客户端";
-            this.radioButtonTCPClient.UseVisualStyleBackColor = true;
-            // 
-            // radioButtonUdpBroadcast
-            // 
-            this.radioButtonUdpBroadcast.AutoSize = true;
-            this.radioButtonUdpBroadcast.Location = new System.Drawing.Point(12, 40);
-            this.radioButtonUdpBroadcast.Name = "radioButtonUdpBroadcast";
-            this.radioButtonUdpBroadcast.Size = new System.Drawing.Size(65, 16);
-            this.radioButtonUdpBroadcast.TabIndex = 8;
-            this.radioButtonUdpBroadcast.TabStop = true;
-            this.radioButtonUdpBroadcast.Text = "UDP组播";
-            this.radioButtonUdpBroadcast.UseVisualStyleBackColor = true;
-            // 
             // CommunicationForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -646,7 +687,6 @@
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.statusStrip1);
-            this.Controls.Add(this.buttonReset);
             this.Controls.Add(this.groupBox1);
             this.MaximizeBox = false;
             this.Name = "CommunicationForm";
@@ -704,9 +744,9 @@
         private System.Windows.Forms.Button buttonClearReceive;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusDataRcv;
         private System.Windows.Forms.GroupBox groupBox3;
-        private System.Windows.Forms.TextBox textBoxPortNum;
+        private System.Windows.Forms.TextBox textBoxLocalPort;
         private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.TextBox textBoxIpAddress;
+        private System.Windows.Forms.TextBox textBoxLocalIp;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.RadioButton radioButtonTCPServer;
         private System.Windows.Forms.RadioButton radioButtonUdpAssigned;
@@ -726,6 +766,10 @@
         private System.Windows.Forms.CheckBox checkBoxLittleEndianSnd;
         private System.Windows.Forms.RadioButton radioButtonTCPClient;
         private System.Windows.Forms.RadioButton radioButtonUdpBroadcast;
+        private System.Windows.Forms.TextBox textBoxRemotePort;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.TextBox textBoxRemoteIP;
+        private System.Windows.Forms.Label label8;
     }
 }
 
