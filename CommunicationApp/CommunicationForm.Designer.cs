@@ -54,6 +54,7 @@
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.label4 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.checkBoxLittleEndianRcv = new System.Windows.Forms.CheckBox();
             this.buttonClearReceive = new System.Windows.Forms.Button();
             this.dgvReceiveData = new System.Windows.Forms.DataGridView();
             this.ProtocolNameRcv = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -65,6 +66,7 @@
             this.RawDataRcv = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.buttonChoosePtcReceive = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.checkBoxLittleEndianSnd = new System.Windows.Forms.CheckBox();
             this.buttonTimingSendByRaw = new System.Windows.Forms.Button();
             this.label5 = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
@@ -73,10 +75,10 @@
             this.label7 = new System.Windows.Forms.Label();
             this.textBoxIpAddress = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
-            this.radioButtonTCP = new System.Windows.Forms.RadioButton();
-            this.radioButtonUdp = new System.Windows.Forms.RadioButton();
-            this.checkBoxLittleEndianSnd = new System.Windows.Forms.CheckBox();
-            this.checkBoxLittleEndianRcv = new System.Windows.Forms.CheckBox();
+            this.radioButtonTCPServer = new System.Windows.Forms.RadioButton();
+            this.radioButtonUdpAssigned = new System.Windows.Forms.RadioButton();
+            this.radioButtonTCPClient = new System.Windows.Forms.RadioButton();
+            this.radioButtonUdpBroadcast = new System.Windows.Forms.RadioButton();
             this.groupBox1.SuspendLayout();
             this.groupBox4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvSendData)).BeginInit();
@@ -364,6 +366,18 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "按协议解析";
             // 
+            // checkBoxLittleEndianRcv
+            // 
+            this.checkBoxLittleEndianRcv.AutoSize = true;
+            this.checkBoxLittleEndianRcv.Checked = true;
+            this.checkBoxLittleEndianRcv.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBoxLittleEndianRcv.Location = new System.Drawing.Point(330, 229);
+            this.checkBoxLittleEndianRcv.Name = "checkBoxLittleEndianRcv";
+            this.checkBoxLittleEndianRcv.Size = new System.Drawing.Size(84, 16);
+            this.checkBoxLittleEndianRcv.TabIndex = 14;
+            this.checkBoxLittleEndianRcv.Text = "低字节在前";
+            this.checkBoxLittleEndianRcv.UseVisualStyleBackColor = true;
+            // 
             // buttonClearReceive
             // 
             this.buttonClearReceive.Location = new System.Drawing.Point(419, 225);
@@ -488,6 +502,18 @@
             this.tabPage2.Text = "发送数据";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
+            // checkBoxLittleEndianSnd
+            // 
+            this.checkBoxLittleEndianSnd.AutoSize = true;
+            this.checkBoxLittleEndianSnd.Checked = true;
+            this.checkBoxLittleEndianSnd.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBoxLittleEndianSnd.Location = new System.Drawing.Point(483, 265);
+            this.checkBoxLittleEndianSnd.Name = "checkBoxLittleEndianSnd";
+            this.checkBoxLittleEndianSnd.Size = new System.Drawing.Size(84, 16);
+            this.checkBoxLittleEndianSnd.TabIndex = 16;
+            this.checkBoxLittleEndianSnd.Text = "低字节在前";
+            this.checkBoxLittleEndianSnd.UseVisualStyleBackColor = true;
+            // 
             // buttonTimingSendByRaw
             // 
             this.buttonTimingSendByRaw.Location = new System.Drawing.Point(483, 308);
@@ -509,13 +535,15 @@
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.radioButtonUdpBroadcast);
+            this.groupBox3.Controls.Add(this.radioButtonTCPClient);
             this.groupBox3.Controls.Add(this.buttonByNet);
             this.groupBox3.Controls.Add(this.textBoxPortNum);
             this.groupBox3.Controls.Add(this.label7);
             this.groupBox3.Controls.Add(this.textBoxIpAddress);
             this.groupBox3.Controls.Add(this.label6);
-            this.groupBox3.Controls.Add(this.radioButtonTCP);
-            this.groupBox3.Controls.Add(this.radioButtonUdp);
+            this.groupBox3.Controls.Add(this.radioButtonTCPServer);
+            this.groupBox3.Controls.Add(this.radioButtonUdpAssigned);
             this.groupBox3.Location = new System.Drawing.Point(623, 175);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(211, 160);
@@ -535,7 +563,7 @@
             // 
             // textBoxPortNum
             // 
-            this.textBoxPortNum.Location = new System.Drawing.Point(59, 88);
+            this.textBoxPortNum.Location = new System.Drawing.Point(59, 99);
             this.textBoxPortNum.Name = "textBoxPortNum";
             this.textBoxPortNum.Size = new System.Drawing.Size(62, 21);
             this.textBoxPortNum.TabIndex = 5;
@@ -543,7 +571,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(12, 91);
+            this.label7.Location = new System.Drawing.Point(12, 102);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(41, 12);
             this.label7.TabIndex = 4;
@@ -551,7 +579,7 @@
             // 
             // textBoxIpAddress
             // 
-            this.textBoxIpAddress.Location = new System.Drawing.Point(59, 51);
+            this.textBoxIpAddress.Location = new System.Drawing.Point(59, 63);
             this.textBoxIpAddress.Name = "textBoxIpAddress";
             this.textBoxIpAddress.Size = new System.Drawing.Size(133, 21);
             this.textBoxIpAddress.TabIndex = 3;
@@ -559,57 +587,55 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(12, 54);
+            this.label6.Location = new System.Drawing.Point(12, 66);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(41, 12);
             this.label6.TabIndex = 2;
             this.label6.Text = "IP地址";
             // 
-            // radioButtonTCP
+            // radioButtonTCPServer
             // 
-            this.radioButtonTCP.AutoSize = true;
-            this.radioButtonTCP.Location = new System.Drawing.Point(109, 20);
-            this.radioButtonTCP.Name = "radioButtonTCP";
-            this.radioButtonTCP.Size = new System.Drawing.Size(83, 16);
-            this.radioButtonTCP.TabIndex = 1;
-            this.radioButtonTCP.Text = "TCP/IP协议";
-            this.radioButtonTCP.UseVisualStyleBackColor = true;
+            this.radioButtonTCPServer.AutoSize = true;
+            this.radioButtonTCPServer.Location = new System.Drawing.Point(109, 20);
+            this.radioButtonTCPServer.Name = "radioButtonTCPServer";
+            this.radioButtonTCPServer.Size = new System.Drawing.Size(77, 16);
+            this.radioButtonTCPServer.TabIndex = 1;
+            this.radioButtonTCPServer.Text = "TCP服务器";
+            this.radioButtonTCPServer.UseVisualStyleBackColor = true;
             // 
-            // radioButtonUdp
+            // radioButtonUdpAssigned
             // 
-            this.radioButtonUdp.AutoSize = true;
-            this.radioButtonUdp.Checked = true;
-            this.radioButtonUdp.Location = new System.Drawing.Point(12, 20);
-            this.radioButtonUdp.Name = "radioButtonUdp";
-            this.radioButtonUdp.Size = new System.Drawing.Size(65, 16);
-            this.radioButtonUdp.TabIndex = 0;
-            this.radioButtonUdp.TabStop = true;
-            this.radioButtonUdp.Text = "UDP协议";
-            this.radioButtonUdp.UseVisualStyleBackColor = true;
+            this.radioButtonUdpAssigned.AutoSize = true;
+            this.radioButtonUdpAssigned.Checked = true;
+            this.radioButtonUdpAssigned.Location = new System.Drawing.Point(12, 20);
+            this.radioButtonUdpAssigned.Name = "radioButtonUdpAssigned";
+            this.radioButtonUdpAssigned.Size = new System.Drawing.Size(89, 16);
+            this.radioButtonUdpAssigned.TabIndex = 0;
+            this.radioButtonUdpAssigned.TabStop = true;
+            this.radioButtonUdpAssigned.Text = "UDP指定地址";
+            this.radioButtonUdpAssigned.UseVisualStyleBackColor = true;
             // 
-            // checkBoxLittleEndianSnd
+            // radioButtonTCPClient
             // 
-            this.checkBoxLittleEndianSnd.AutoSize = true;
-            this.checkBoxLittleEndianSnd.Checked = true;
-            this.checkBoxLittleEndianSnd.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBoxLittleEndianSnd.Location = new System.Drawing.Point(483, 265);
-            this.checkBoxLittleEndianSnd.Name = "checkBoxLittleEndianSnd";
-            this.checkBoxLittleEndianSnd.Size = new System.Drawing.Size(84, 16);
-            this.checkBoxLittleEndianSnd.TabIndex = 16;
-            this.checkBoxLittleEndianSnd.Text = "低字节在前";
-            this.checkBoxLittleEndianSnd.UseVisualStyleBackColor = true;
+            this.radioButtonTCPClient.AutoSize = true;
+            this.radioButtonTCPClient.Location = new System.Drawing.Point(109, 41);
+            this.radioButtonTCPClient.Name = "radioButtonTCPClient";
+            this.radioButtonTCPClient.Size = new System.Drawing.Size(77, 16);
+            this.radioButtonTCPClient.TabIndex = 7;
+            this.radioButtonTCPClient.TabStop = true;
+            this.radioButtonTCPClient.Text = "TCP客户端";
+            this.radioButtonTCPClient.UseVisualStyleBackColor = true;
             // 
-            // checkBoxLittleEndianRcv
+            // radioButtonUdpBroadcast
             // 
-            this.checkBoxLittleEndianRcv.AutoSize = true;
-            this.checkBoxLittleEndianRcv.Checked = true;
-            this.checkBoxLittleEndianRcv.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBoxLittleEndianRcv.Location = new System.Drawing.Point(330, 229);
-            this.checkBoxLittleEndianRcv.Name = "checkBoxLittleEndianRcv";
-            this.checkBoxLittleEndianRcv.Size = new System.Drawing.Size(84, 16);
-            this.checkBoxLittleEndianRcv.TabIndex = 14;
-            this.checkBoxLittleEndianRcv.Text = "低字节在前";
-            this.checkBoxLittleEndianRcv.UseVisualStyleBackColor = true;
+            this.radioButtonUdpBroadcast.AutoSize = true;
+            this.radioButtonUdpBroadcast.Location = new System.Drawing.Point(12, 40);
+            this.radioButtonUdpBroadcast.Name = "radioButtonUdpBroadcast";
+            this.radioButtonUdpBroadcast.Size = new System.Drawing.Size(65, 16);
+            this.radioButtonUdpBroadcast.TabIndex = 8;
+            this.radioButtonUdpBroadcast.TabStop = true;
+            this.radioButtonUdpBroadcast.Text = "UDP组播";
+            this.radioButtonUdpBroadcast.UseVisualStyleBackColor = true;
             // 
             // CommunicationForm
             // 
@@ -682,8 +708,8 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.TextBox textBoxIpAddress;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.RadioButton radioButtonTCP;
-        private System.Windows.Forms.RadioButton radioButtonUdp;
+        private System.Windows.Forms.RadioButton radioButtonTCPServer;
+        private System.Windows.Forms.RadioButton radioButtonUdpAssigned;
         private System.Windows.Forms.Button buttonByNet;
         private System.Windows.Forms.Button buttonTimingSendByPtc;
         private System.Windows.Forms.Button buttonTimingSendByRaw;
@@ -698,6 +724,8 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn RawDataRcv;
         private System.Windows.Forms.CheckBox checkBoxLittleEndianRcv;
         private System.Windows.Forms.CheckBox checkBoxLittleEndianSnd;
+        private System.Windows.Forms.RadioButton radioButtonTCPClient;
+        private System.Windows.Forms.RadioButton radioButtonUdpBroadcast;
     }
 }
 

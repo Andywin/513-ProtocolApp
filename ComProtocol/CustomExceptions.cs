@@ -42,4 +42,22 @@ namespace ConvertProvider
         {
         }
     }
+
+    /// <summary>
+    /// IP地址不正确的异常
+    /// </summary>
+    public class IPAddressInvalidException : Exception
+    {
+        public IPAddressInvalidException()
+        {
+        }
+        public IPAddressInvalidException(string message)
+            : base(message)
+        {
+        }
+        public IPAddressInvalidException(string message, Exception inner)
+            : base(message, inner)
+        {
+        }
+    }
 }

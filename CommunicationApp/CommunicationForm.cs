@@ -35,11 +35,15 @@ namespace CommunicationApp
         private TcpClient tcpClientSend;
         //声明接收用TcpListener和TcpClient
         private TcpListener tcpListenerRcv;
-        private TcpClient clientTCP;
+        private TcpClient tcpClientRcv;
         //声明监听网络端口的线程
         Thread threadNet;
         //声明监听TCP协议的线程
-        Thread threadTCP;
+        Thread threadTcpServer;
+        Thread threadTcpClient;
+        //声明IP地址信息和端口号
+        IPAddress addressTosend;
+        int portNum;
         //定义定时发送的Timer
         System.Windows.Forms.Timer sendTimerByPtc = new System.Windows.Forms.Timer();
         System.Windows.Forms.Timer sendTimerByRaw = new System.Windows.Forms.Timer();
@@ -568,9 +572,9 @@ namespace CommunicationApp
                 buttonBySerialPort.Enabled = true;
                 //终止接收网络数据线程
                 threadNet.Abort();
-                if (threadTCP != null)
+                if (threadTcpServer != null)
                 {
-                    threadTCP.Abort();
+                    threadTcpServer.Abort();
                 }
                 if (udpClientRcv != null)
                 {
@@ -590,12 +594,12 @@ namespace CommunicationApp
         /// </summary>
         private void ListenNet()
         {
-            int portNum;//设置端口号，如果是无法解析出正确端口号，则返回
+            //如果是无法解析出正确端口号，则返回
             if (!Int32.TryParse(textBoxPortNum.Text, out portNum))
             {
                 return;
             }
-            if (radioButtonUdp.Checked)//选中Udp协议
+            if (radioButtonUdpAssigned.Checked || radioButtonUdpBroadcast.Checked)//选中Udp指定端口协议
             {
                 //声明终结点和端口号
                 IPEndPoint iep = null;
@@ -609,22 +613,54 @@ namespace CommunicationApp
                     invokeDataRcv(buf);
                 }
             }
-            else if (radioButtonTCP.Checked)//选中TCP/IP协议
+            else if (radioButtonTCPServer.Checked)//选中TCP/IP协议
             {
                 //IPAddress localIP = Dns.GetHostAddresses(Dns.GetHostName())[0];
-                threadTCP = new Thread(new ThreadStart(ListenTCP));
-                threadTCP.IsBackground = true;
-                threadTCP.Start();
+                threadTcpServer = new Thread(new ThreadStart(ListenTcpServer));
+                threadTcpServer.IsBackground = true;
+                threadTcpServer.Start();
             }
         }
 
+        ///// <summary>
+        ///// 客户端侦听来自服务器TCP的线程方法
+        ///// </summary>
+        //private void ListenTcpClient()
+        //{
+        //    //检查IP地址和端口号是否正确，不正确则直接跳出
+        //    if (!ValidIPandPort())
+        //        return;
+        //    //初始化接收用tcpClientRcv
+        //    tcpClientRcv = new TcpClient();
+        //    //连接到相应端口，接收指定IP地址发送的数据
+        //    tcpClientRcv.Connect(addressTosend, portNum);
+        //    while (true)
+        //    {
+        //        //获得用于接收的NetworkStream对象
+        //        NetworkStream netStream = tcpClientRcv.GetStream();
+        //        if (netStream.CanRead)
+        //        {
+        //            byte[] bytes = new byte[tcpClientRcv.ReceiveBufferSize];
+        //            netStream.Read(bytes, 0, tcpClientRcv.ReceiveBufferSize);
+        //            //调用数据处理的事件委托，对读取的数据进行分析并显示
+        //            invokeDataRcv(bytes);
+        //        }
+        //        netStream.Close();
+        //        ////使用一个StreamReader读取stream对象中的数据
+        //        //StreamReader sr = new StreamReader(netStream);
+        //        //string stringBuf = sr.ReadToEnd();//以字符串形式读取netStream流中的内容
+        //        ////转存为byte[] buf，以ASCII格式解码（因为发送的时候StreamWriter也是用ASCII编码的）
+        //        //byte[] buf = Encoding.ASCII.GetBytes(stringBuf);
+        //        //sr.Close();//关闭StreamReader流
+        //        tcpClientRcv.Close();
+        //    }
+        //}
+
         /// <summary>
-        /// 侦听TCP的线程方法
+        /// 服务器侦听TCP的线程方法
         /// </summary>
-        private void ListenTCP()
+        private void ListenTcpServer()
         {
-            int portNum;//设置端口号
-            Int32.TryParse(textBoxPortNum.Text, out portNum);
             //定义TcpListener,开启侦听网络端口
             tcpListenerRcv = new TcpListener(IPAddress.Any, portNum);
             tcpListenerRcv.Start();
@@ -634,16 +670,16 @@ namespace CommunicationApp
                 if (tcpListenerRcv.Pending())
                 {
                     //开启阻塞式接收TCP连接，接收到一个TcpClient对象
-                    clientTCP = tcpListenerRcv.AcceptTcpClient();
+                    tcpClientRcv = tcpListenerRcv.AcceptTcpClient();
                     //获得用于读写的NetworkStream对象
-                    NetworkStream netStream = clientTCP.GetStream();
+                    NetworkStream netStream = tcpClientRcv.GetStream();
                     //使用一个StreamReader读取stream对象中的数据
                     StreamReader sr = new StreamReader(netStream);
                     string stringBuf = sr.ReadToEnd();//以字符串形式读取netStream流中的内容
                     //转存为byte[] buf，以ASCII格式解码（因为发送的时候StreamWriter也是用ASCII编码的）
                     buf = Encoding.ASCII.GetBytes(stringBuf);
                     sr.Close();//关闭StreamReader流
-                    clientTCP.Close();
+                    tcpClientRcv.Close();
                     //调用数据处理的事件委托，对读取的数据进行分析并显示
                     invokeDataRcv(buf);
                 }
@@ -656,14 +692,20 @@ namespace CommunicationApp
         /// <param name="buf"></param>
         private void SendByNet(List<byte> buf)
         {
-            //存储IP地址信息和端口号
-            IPAddress addressTosend;
-            int portNum;
-            if (!(IPAddress.TryParse(textBoxIpAddress.Text, out addressTosend) && Int32.TryParse(textBoxPortNum.Text, out portNum)))
+            //检查IP地址和端口号是否正确，不正确则直接跳出
+            if (!ValidIPandPort())
+                return;
+            if (radioButtonUdpBroadcast.Checked)//选中Udp组播
             {
-                return;//如果是无法解析出正确端口号和IP地址，则返回
+                //初始化发送用UdpClient
+                udpClientSend = new UdpClient();
+                //设置广播地址终结点
+                IPEndPoint broadcastIEP = new IPEndPoint(IPAddress.Broadcast, portNum);
+                //将数据发送到广播地址
+                udpClientSend.Send(buf.ToArray(), buf.Count, broadcastIEP);
+                udpClientSend.Close();
             }
-            if (radioButtonUdp.Checked)//选中Udp协议
+            if (radioButtonUdpAssigned.Checked)//选中Udp指定地址发送
             {
                 //初始化发送用UdpClient
                 udpClientSend = new UdpClient();
@@ -672,7 +714,7 @@ namespace CommunicationApp
                 udpClientSend.Send(buf.ToArray(), buf.Count);
                 udpClientSend.Close();
             }
-            else if (radioButtonTCP.Checked)//选中TCP/IP协议
+            else if (radioButtonTCPServer.Checked)//选中TCP/IP协议
             {
                 //初始化发送用tcpClientSend
                 tcpClientSend = new TcpClient();
@@ -680,17 +722,26 @@ namespace CommunicationApp
                 tcpClientSend.Connect(addressTosend, portNum);
                 //获得用于发送的NetworkStream对象
                 NetworkStream netStream = tcpClientSend.GetStream();
-                //使用一个StreamWriter存储要写入stream对象中的数据
-                StreamWriter sw = new StreamWriter(netStream, Encoding.ASCII);
-                //以ASCII格式编码，存储到要发送的String流中
-                string stringBuf = Encoding.ASCII.GetString(buf.ToArray());
-                //以字符串形式写入netStream流中的内容
-                sw.Write(stringBuf);
-                sw.Flush();
-                sw.Close();//关闭StreamWriter流
-                tcpClientSend.Close();//关闭tcpClient              
+                //发送数据
+                netStream.Write(buf.ToArray(), 0, buf.Count);
+                tcpClientSend.Close();//关闭tcpClient
+                netStream.Close();
             }
-        } 
+        }
+
+        /// <summary>
+        /// 检查IP地址和端口号是否正确
+        /// </summary>
+        /// <returns>正确返回true</returns>
+        private bool ValidIPandPort()
+        {
+            if ((IPAddress.TryParse(textBoxIpAddress.Text, out addressTosend) && Int32.TryParse(textBoxPortNum.Text, out portNum)))
+            {
+                return true;//如果解析出正确端口号和IP地址，则返回true
+            }
+            else
+                return false;
+        }
         #endregion
 
         #region 定时发送
