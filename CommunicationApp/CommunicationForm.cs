@@ -44,6 +44,7 @@ namespace CommunicationApp
         //声明监听TCP协议的线程
         Thread threadTcpServer;
         Thread threadTcpClient;
+        Thread tcpServerTrd;
         //声明IP地址信息和端口号
         IPAddress localIpAddress;
         int localPort;
@@ -106,7 +107,7 @@ namespace CommunicationApp
             //添加事件注册
             comm.DataReceived += SerialDataReceived;
             invokeDataRcvEvent += ReceiveDataMethod;
-            resetButtonEvent += ResetButton;
+            resetButtonEvent += ResetNetStatus;
 
             //设置数据长度列颜色为灰色
             dgvReceiveData.Columns["ProtocolDataLengthRcv"].DefaultCellStyle.BackColor = Color.LightGray;
@@ -585,33 +586,8 @@ namespace CommunicationApp
             }
             else
             {
-                isByNet = false;
-                buttonByNet.Text = "开启网络收发";
-                buttonBySerialPort.Enabled = true;
-                //终止接收网络数据线程
-                threadNet.Abort();
-                if (threadTcpServer != null)
-                {
-                    threadTcpServer.Abort();
-                }
-                if (threadTcpClient != null)
-                {
-                    threadTcpClient.Abort();
-                }
-                if (udpClientRcv != null)
-                {
-                    //关闭udp协议监听端口
-                    udpClientRcv.Close();                 
-                }
-                if (tcpClientRcv != null)
-                {
-                    tcpClientRcv.Close();
-                }
-                if (tcpListenerRcv != null)
-                {
-                    //关闭TCP服务器监听端口
-                    tcpListenerRcv.Stop();                    
-                }
+                //重置网络收发按钮和状态
+                ResetNetStatus();
             }
         }
 
@@ -700,7 +676,7 @@ namespace CommunicationApp
             tcpListenerRcv = new TcpListener(IPAddress.Any, localPort);
             tcpListenerRcv.Start();
             //开启TCP服务器监听并接收信息的线程
-            Thread tcpServerTrd = new Thread(new ThreadStart(tcpServerListing));
+            tcpServerTrd = new Thread(new ThreadStart(tcpServerListing));
             tcpServerTrd.IsBackground = true;
             tcpServerTrd.Start();
         }
@@ -728,8 +704,6 @@ namespace CommunicationApp
                     NetworkStream netStream = tcpTempClient.GetStream();
                     byte[] serverBufData = new byte[2048];
                     int bytesRcvd = netStream.Read(serverBufData, 0, 2048);
-                    //netStream.Close();
-                    //tcpTempClient.Close();
                     //调用数据处理的事件委托，对读取的数据进行分析并显示
                     invokeDataRcvEvent(serverBufData.Take(bytesRcvd).ToArray());
                 }
@@ -740,7 +714,12 @@ namespace CommunicationApp
                     int bytesRcvd = serverNetStream.Read(serverBufData, 0, 2048);
                     //调用数据处理的事件委托，对读取的数据进行分析并显示
                     invokeDataRcvEvent(serverBufData.Take(bytesRcvd).ToArray());
-                } 
+                }
+                //else if (clientsDict.Count == 0)
+                //{
+                //    tcpListenerRcv.Stop();
+                //    return;
+                //}
             }
 
         }
@@ -795,9 +774,9 @@ namespace CommunicationApp
         }
 
         /// <summary>
-        /// 接收异常，复位按钮状态
+        /// 复位网路收发状态和按钮
         /// </summary>
-        private void ResetButton()
+        private void ResetNetStatus()
         {
             isByNet = false;
             this.Invoke((EventHandler)(delegate
@@ -809,6 +788,12 @@ namespace CommunicationApp
             threadNet.Abort();
             if (threadTcpServer != null)
             {
+                tcpServerTrd.Abort();
+                foreach (var tcpClient in clientsDict.Values)
+                {
+                    tcpClient.Close();
+                }
+                clientsDict.Clear();
                 threadTcpServer.Abort();
             }
             if (threadTcpClient != null)
