@@ -17,7 +17,8 @@ namespace CommunicationApp
 {
     //定义一个byte[]参数的委托，用来调用接收数据、数据分析以及显示的方法
     public delegate void InvokeDataRcvDelegate(byte[] buf);
-    
+    public delegate void ButtonResetHandler();
+
     public partial class CommunicationForm : Form
     {
         private SerialPort comm = new SerialPort();
@@ -44,13 +45,16 @@ namespace CommunicationApp
         Thread threadTcpServer;
         Thread threadTcpClient;
         //声明IP地址信息和端口号
-        IPAddress addressTosend;
+        IPAddress localIpAddress;
         int localPort;
+        IPAddress remoteIpAddress;
+        int remotePort;
         //定义定时发送的Timer
         System.Windows.Forms.Timer sendTimerByPtc = new System.Windows.Forms.Timer();
         System.Windows.Forms.Timer sendTimerByRaw = new System.Windows.Forms.Timer();
         //定义InvokeDataRcvDelegate委托的事件
-        public event InvokeDataRcvDelegate invokeDataRcv;
+        public event InvokeDataRcvDelegate invokeDataRcvEvent;
+        public event ButtonResetHandler resetButtonEvent;
 
         //定义数据列表，存储需要保存的发送协议表格
         DataSet dataSetSend = new DataSet();
@@ -87,6 +91,8 @@ namespace CommunicationApp
             //初始化网络通信textBox默认值
             textBoxLocalIp.Text = "127.0.0.1";
             textBoxLocalPort.Text = "12700";
+            textBoxRemoteIP.Text = "127.0.0.1";
+            textBoxRemotePort.Text = "26400";
 
             //初始化SerialPort对象
             comm.NewLine = "\r\n"; //表示行尾的值。 默认值为换行符 (NewLine)
@@ -94,7 +100,8 @@ namespace CommunicationApp
 
             //添加事件注册
             comm.DataReceived += SerialDataReceived;
-            invokeDataRcv += ReceiveDataMethod;
+            invokeDataRcvEvent += ReceiveDataMethod;
+            resetButtonEvent += ResetButton;
 
             //设置数据长度列颜色为灰色
             dgvReceiveData.Columns["ProtocolDataLengthRcv"].DefaultCellStyle.BackColor = Color.LightGray;
@@ -202,7 +209,7 @@ namespace CommunicationApp
                 comm.Read(buf, 0, n);//读取缓冲数据
 
                 //调用数据处理的事件委托，对读取的数据进行分析并显示
-                invokeDataRcv(buf);
+                invokeDataRcvEvent(buf);
             }
             //catch (Exception ex)
             //{
@@ -495,7 +502,6 @@ namespace CommunicationApp
             //传入需要修改的dgvReceiveData表格
             myProtocolConfigForm.ShowDialog(this, dgvReceiveData);
             this.Cursor = Cursors.Default;
-            
         }
 
         /// <summary>
@@ -556,6 +562,11 @@ namespace CommunicationApp
         /// <param name="e"></param>
         private void buttonByNet_Click(object sender, EventArgs e)
         {
+            //如果是无法解析出正确本机端口号，则返回
+            if (!Int32.TryParse(textBoxLocalPort.Text, out localPort))
+            {
+                return;
+            }
             if (!isByNet)
             {
                 isByNet = true;
@@ -604,11 +615,6 @@ namespace CommunicationApp
         /// </summary>
         private void ListenNet()
         {
-            //如果是无法解析出正确端口号，则返回
-            if (!Int32.TryParse(textBoxLocalPort.Text, out localPort))
-            {
-                return;
-            }
             if (radioButtonUdpAssigned.Checked || radioButtonUdpBroadcast.Checked)//选中Udp指定端口协议
             {
                 //声明终结点和端口号
@@ -620,7 +626,7 @@ namespace CommunicationApp
                     //获得网络发送过来的数据包
                     byte[] buf = udpClientRcv.Receive(ref iep);
                     //调用数据处理的事件委托，对读取的数据进行分析并显示
-                    invokeDataRcv(buf);
+                    invokeDataRcvEvent(buf);
                 }
             }
             else if (radioButtonTCPServer.Checked)//选中TCP/IP协议
@@ -644,12 +650,24 @@ namespace CommunicationApp
         ///// </summary>
         private void TcpClientConnectServer()
         {
-            //检查IP地址和端口号是否正确，不正确则直接跳出
-            if (!ValidIPandPort())
+            //检查要连接到的IP地址和端口号是否正确，不正确则直接跳出
+            if (!(IPAddress.TryParse(textBoxRemoteIP.Text, out remoteIpAddress) && Int32.TryParse(textBoxRemotePort.Text, out remotePort)))
+            {
+                resetButtonEvent();
                 return;
+            }
             //连接到相应端口，接收指定IP地址发送的数据
             tcpClientRcv = new TcpClient();
-            tcpClientRcv.Connect(addressTosend, localPort);
+            try
+            {
+                tcpClientRcv.Connect(remoteIpAddress, remotePort);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("服务器关闭状态，无法连接");
+                resetButtonEvent();
+                return;
+            }
             while (true)
             {
                 if (!tcpClientRcv.Connected)
@@ -658,16 +676,12 @@ namespace CommunicationApp
                 }
                 //获得用于接收的NetworkStream对象
                 NetworkStream netStream = tcpClientRcv.GetStream();
-                //获得远程的IPEndPoint信息
-                IPEndPoint tempEP = new IPEndPoint(addressTosend, localPort);
                 if (netStream.CanRead)
                 {
                     byte[] buf = new byte[tcpClientRcv.ReceiveBufferSize];
                     int bytesRcvd = netStream.Read(buf, 0, tcpClientRcv.ReceiveBufferSize);
-                  //  netStream.Close();
-                //    tcpClientRcv.Close();
                     //调用数据处理的事件委托，对读取的数据进行分析并显示
-                    invokeDataRcv(buf.Take(bytesRcvd).ToArray());
+                    invokeDataRcvEvent(buf.Take(bytesRcvd).ToArray());
                 }
             }
         }
@@ -700,14 +714,14 @@ namespace CommunicationApp
                 TcpClient tcpTempClient = tcpListenerRcv.AcceptTcpClient();
                 //获得用于读写的NetworkStream对象
                 NetworkStream netStream = tcpTempClient.GetStream();
-                //获得远程的IPEndPoint信息
-                IPEndPoint tempEP = (IPEndPoint)tcpTempClient.Client.RemoteEndPoint;
+                ////获得远程的IPEndPoint信息
+                //IPEndPoint tempEP = (IPEndPoint)tcpTempClient.Client.RemoteEndPoint;
                 buf = new byte[tcpTempClient.ReceiveBufferSize];
                 int bytesRcvd = netStream.Read(buf, 0, tcpTempClient.ReceiveBufferSize);
                 netStream.Close();
                 tcpTempClient.Close();
                 //调用数据处理的事件委托，对读取的数据进行分析并显示
-                invokeDataRcv(buf.Take(bytesRcvd).ToArray());
+                invokeDataRcvEvent(buf.Take(bytesRcvd).ToArray());
             }
         }
 
@@ -717,15 +731,18 @@ namespace CommunicationApp
         /// <param name="buf"></param>
         private void SendByNet(List<byte> buf)
         {
-            //检查IP地址和端口号是否正确，不正确则直接跳出
-            if (!ValidIPandPort())
+            //检查远程IP地址和端口号是否正确，不正确则直接跳出
+            if (!(IPAddress.TryParse(textBoxRemoteIP.Text, out remoteIpAddress) && Int32.TryParse(textBoxRemotePort.Text, out remotePort)))
+            {
+                resetButtonEvent(); 
                 return;
+            }
             if (radioButtonUdpBroadcast.Checked)//选中Udp组播
             {
                 //初始化发送用UdpClient
                 udpClientSend = new UdpClient();
                 //设置广播地址终结点
-                IPEndPoint broadcastIEP = new IPEndPoint(IPAddress.Broadcast, localPort);
+                IPEndPoint broadcastIEP = new IPEndPoint(IPAddress.Broadcast, remotePort);
                 //将数据发送到广播地址
                 udpClientSend.Send(buf.ToArray(), buf.Count, broadcastIEP);
                 udpClientSend.Close();
@@ -735,16 +752,16 @@ namespace CommunicationApp
                 //初始化发送用UdpClient
                 udpClientSend = new UdpClient();
                 //连接到相应端口，向指定IP地址发送数据
-                udpClientSend.Connect(addressTosend, localPort);
+                udpClientSend.Connect(remoteIpAddress, remotePort);
                 udpClientSend.Send(buf.ToArray(), buf.Count);
                 udpClientSend.Close();
             }
-            else if (radioButtonTCPServer.Checked)//选中TCP/IP协议
+            else if (radioButtonTCPServer.Checked)//选中TCP/IP服务器
             {
                 //初始化发送用tcpClientSend
                 tcpClientSendfromServer = new TcpClient();
                 //连接到相应端口，向指定IP地址发送数据
-                tcpClientSendfromServer.Connect(addressTosend, localPort);
+                tcpClientSendfromServer.Connect(remoteIpAddress, remotePort);
                 //获得用于发送的NetworkStream对象
                 NetworkStream netStream = tcpClientSendfromServer.GetStream();
                 //发送数据
@@ -752,33 +769,12 @@ namespace CommunicationApp
                 netStream.Close();
                 tcpClientSendfromServer.Close();//关闭tcpClient
             }
-            else if (radioButtonTCPClient.Checked)
+            else if (radioButtonTCPClient.Checked)//选中TCP/IP客户端
             {
-                //初始化发送用tcpClientSend
-          //      tcpClientSendfromClient = new TcpClient();
-                //连接到相应端口，向指定IP地址发送数据
-            //    tcpClientRcv.Connect(addressTosend, localPort);
-                //获得用于发送的NetworkStream对象
                 NetworkStream netStream = tcpClientRcv.GetStream();
                 //发送数据
                 netStream.Write(buf.ToArray(), 0, buf.Count);
-            //    netStream.Close();
-             //   tcpClientRcv.Close();
             }
-        }
-
-        /// <summary>
-        /// 检查IP地址和端口号是否正确
-        /// </summary>
-        /// <returns>正确返回true</returns>
-        private bool ValidIPandPort()
-        {
-            if ((IPAddress.TryParse(textBoxLocalIp.Text, out addressTosend) && Int32.TryParse(textBoxLocalPort.Text, out localPort)))
-            {
-                return true;//如果解析出正确端口号和IP地址，则返回true
-            }
-            else
-                return false;
         }
         #endregion
 
@@ -831,7 +827,45 @@ namespace CommunicationApp
                 buttonTimingSendByRaw.Text = "开启定时发送";
                 sendTimerByRaw.Stop();
             }
-        } 
+        }
+
+        /// <summary>
+        /// 接收异常，复位按钮状态
+        /// </summary>
+        private void ResetButton()
+        {
+            isByNet = false;
+            this.Invoke((EventHandler)(delegate
+            {
+                buttonByNet.Text = "开启网络收发";
+                buttonBySerialPort.Enabled = true;
+            }));
+            //终止接收网络数据线程
+            threadNet.Abort();
+            if (threadTcpServer != null)
+            {
+                threadTcpServer.Abort();
+            }
+            if (threadTcpClient != null)
+            {
+                threadTcpClient.Abort();
+            }
+            if (udpClientRcv != null)
+            {
+                //关闭udp协议监听端口
+                udpClientRcv.Close();
+            }
+            if (tcpClientRcv != null)
+            {
+                tcpClientRcv.Close();
+            }
+            if (tcpListenerRcv != null)
+            {
+                //关闭TCP服务器监听端口
+                tcpListenerRcv.Stop();
+            }
+        }
+
         #endregion
 
         #region 保存加载协议
