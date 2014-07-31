@@ -74,7 +74,7 @@
             this.label9 = new System.Windows.Forms.Label();
             this.textBoxRemoteIP = new System.Windows.Forms.TextBox();
             this.label8 = new System.Windows.Forms.Label();
-            this.radioButtonUdpBroadcast = new System.Windows.Forms.RadioButton();
+            this.radioButtonUdpMulticast = new System.Windows.Forms.RadioButton();
             this.radioButtonTCPClient = new System.Windows.Forms.RadioButton();
             this.buttonByNet = new System.Windows.Forms.Button();
             this.textBoxLocalPort = new System.Windows.Forms.TextBox();
@@ -544,7 +544,7 @@
             this.groupBox3.Controls.Add(this.label9);
             this.groupBox3.Controls.Add(this.textBoxRemoteIP);
             this.groupBox3.Controls.Add(this.label8);
-            this.groupBox3.Controls.Add(this.radioButtonUdpBroadcast);
+            this.groupBox3.Controls.Add(this.radioButtonUdpMulticast);
             this.groupBox3.Controls.Add(this.radioButtonTCPClient);
             this.groupBox3.Controls.Add(this.buttonByNet);
             this.groupBox3.Controls.Add(this.textBoxLocalPort);
@@ -592,16 +592,16 @@
             this.label8.TabIndex = 9;
             this.label8.Text = "远程IP";
             // 
-            // radioButtonUdpBroadcast
+            // radioButtonUdpMulticast
             // 
-            this.radioButtonUdpBroadcast.AutoSize = true;
-            this.radioButtonUdpBroadcast.Location = new System.Drawing.Point(12, 40);
-            this.radioButtonUdpBroadcast.Name = "radioButtonUdpBroadcast";
-            this.radioButtonUdpBroadcast.Size = new System.Drawing.Size(65, 16);
-            this.radioButtonUdpBroadcast.TabIndex = 8;
-            this.radioButtonUdpBroadcast.TabStop = true;
-            this.radioButtonUdpBroadcast.Text = "UDP组播";
-            this.radioButtonUdpBroadcast.UseVisualStyleBackColor = true;
+            this.radioButtonUdpMulticast.AutoSize = true;
+            this.radioButtonUdpMulticast.Location = new System.Drawing.Point(12, 40);
+            this.radioButtonUdpMulticast.Name = "radioButtonUdpMulticast";
+            this.radioButtonUdpMulticast.Size = new System.Drawing.Size(65, 16);
+            this.radioButtonUdpMulticast.TabIndex = 8;
+            this.radioButtonUdpMulticast.TabStop = true;
+            this.radioButtonUdpMulticast.Text = "UDP组播";
+            this.radioButtonUdpMulticast.UseVisualStyleBackColor = true;
             // 
             // radioButtonTCPClient
             // 
@@ -765,7 +765,7 @@
         private System.Windows.Forms.CheckBox checkBoxLittleEndianRcv;
         private System.Windows.Forms.CheckBox checkBoxLittleEndianSnd;
         private System.Windows.Forms.RadioButton radioButtonTCPClient;
-        private System.Windows.Forms.RadioButton radioButtonUdpBroadcast;
+        private System.Windows.Forms.RadioButton radioButtonUdpMulticast;
         private System.Windows.Forms.TextBox textBoxRemotePort;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.TextBox textBoxRemoteIP;

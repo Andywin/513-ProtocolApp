@@ -596,7 +596,7 @@ namespace CommunicationApp
         /// </summary>
         private void ListenNet()
         {
-            if (radioButtonUdpAssigned.Checked || radioButtonUdpBroadcast.Checked)//选中Udp指定端口协议
+            if (radioButtonUdpAssigned.Checked)//选中Udp指定端口协议
             {
                 //声明终结点和端口号
                 IPEndPoint iep = null;
@@ -606,6 +606,27 @@ namespace CommunicationApp
                 {
                     //获得网络发送过来的数据包
                     byte[] buf = udpClientRcv.Receive(ref iep);
+                    //调用数据处理的事件委托，对读取的数据进行分析并显示
+                    invokeDataRcvEvent(buf);
+                }
+            }
+            else if (radioButtonUdpMulticast.Checked)//选中Udp组播
+            {
+                //检查远程IP地址和端口号是否正确，不正确则直接跳出
+                if (!(IPAddress.TryParse(textBoxRemoteIP.Text, out remoteIpAddress) && Int32.TryParse(textBoxRemotePort.Text, out remotePort)))
+                {
+                    resetButtonEvent();
+                    return;
+                }
+                //声明终结点和端口号
+                IPEndPoint groupEP = new IPEndPoint(remoteIpAddress, remotePort);
+                udpClientRcv = new UdpClient(remotePort);//建立接收端的UdpClient实例，并定义端口
+                udpClientRcv.JoinMulticastGroup(remoteIpAddress);//加入组播组
+                udpClientRcv.EnableBroadcast = true;//设置是否发送或接收广播数据包
+                while(true)
+                {
+                    //获得网络发送过来的数据包
+                    byte[] buf = udpClientRcv.Receive(ref groupEP);
                     //调用数据处理的事件委托，对读取的数据进行分析并显示
                     invokeDataRcvEvent(buf);
                 }
@@ -736,17 +757,17 @@ namespace CommunicationApp
                 resetButtonEvent(); 
                 return;
             }
-            if (radioButtonUdpBroadcast.Checked)//选中Udp组播
-            {
-                //初始化发送用UdpClient
-                udpClientSend = new UdpClient();
-                //设置广播地址终结点
-                IPEndPoint broadcastIEP = new IPEndPoint(IPAddress.Broadcast, remotePort);
-                //将数据发送到广播地址
-                udpClientSend.Send(buf.ToArray(), buf.Count, broadcastIEP);
-                udpClientSend.Close();
-            }
-            if (radioButtonUdpAssigned.Checked)//选中Udp指定地址发送
+            //if (radioButtonUdpMulticast.Checked)//选中Udp组播
+            //{
+            //    //初始化发送用UdpClient
+            //    udpClientSend = new UdpClient();
+            //    //设置广播地址终结点
+            //    IPEndPoint broadcastIEP = new IPEndPoint(IPAddress.Broadcast, remotePort);
+            //    //将数据发送到广播地址
+            //    udpClientSend.Send(buf.ToArray(), buf.Count, broadcastIEP);
+            //    udpClientSend.Close();
+            //}
+            if (radioButtonUdpMulticast.Checked || radioButtonUdpAssigned.Checked)//选中Udp指定地址发送或组播发送
             {
                 //初始化发送用UdpClient
                 udpClientSend = new UdpClient();
